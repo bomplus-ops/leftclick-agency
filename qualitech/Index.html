@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qualitech Sales Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --surface2: #21253a;
+      --border:   #2e3354;
+      --text:     #e8eaf6;
+      --muted:    #8b90b4;
+      --accent:   #4f8ef7;
+      --green:    #34c77b;
+      --amber:    #f5a623;
+      --red:      #e84545;
+      --radius:   8px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+    .logo span { color: var(--accent); }
+    .badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .header-meta { font-size: 12px; color: var(--muted); }
+
+    /* ── Layout ── */
+    .main { padding: 24px 28px; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Loading / Error ── */
+    .state-overlay { text-align: center; padding: 80px 20px; color: var(--muted); }
+    .state-overlay .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .state-overlay h3 { font-size: 16px; margin-bottom: 6px; color: var(--text); }
+    .state-overlay p  { font-size: 13px; }
+
+    .error-box {
+      background: rgba(232,69,69,0.1);
+      border: 1px solid rgba(232,69,69,0.3);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      color: var(--red);
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    /* ── Section ── */
+    .section { margin-bottom: 28px; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── KPI Cards ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+    .kpi-card.green { border-left-color: var(--green); }
+    .kpi-card.amber { border-left-color: var(--amber); }
+    .kpi-card.blue  { border-left-color: var(--accent); }
+    .kpi-card.red   { border-left-color: var(--red); }
+    .kpi-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+    .kpi-value { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: #fff; margin-bottom: 4px; }
+    .kpi-sub   { font-size: 12px; color: var(--muted); }
+
+    /* ── Two-column grid ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-body { padding: 18px; }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(46,51,84,0.5); color: var(--text); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(79,142,247,0.04); }
+    .data-table td.right, .data-table th.right { text-align: right; }
+
+    /* ── Progress bar ── */
+    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+    .progress-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s ease; }
+    .progress-bar-fill.green { background: var(--green); }
+    .progress-bar-fill.amber { background: var(--amber); }
+    .progress-bar-fill.red   { background: var(--red); }
+
+    /* ── Status badge ── */
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .status-badge.win     { background: rgba(52,199,123,0.15); color: var(--green); }
+    .status-badge.waiting { background: rgba(245,166,35,0.15);  color: var(--amber); }
+    .status-badge.lost    { background: rgba(232,69,69,0.15);   color: var(--red); }
+
+    /* ── Chart ── */
+    .chart-wrap { position: relative; height: 280px; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 32px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Quali<span>tech</span></div>
+    <div class="badge">Sales Dashboard</div>
+  </div>
+  <div class="header-meta" id="fetchedAt">Loading…</div>
+</div>
+
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Loading state -->
+  <div id="loadingState" class="state-overlay">
+    <div class="spinner"></div>
+    <h3>Loading dashboard data…</h3>
+    <p>Fetching from Google Sheets</p>
+  </div>
+
+  <!-- Error banner -->
+  <div id="errorBox" class="error-box" style="display:none"></div>
+
+  <!-- Dashboard (hidden until data loads) -->
+  <div id="dashContent" style="display:none">
+
+    <!-- KPIs -->
+    <div class="section">
+      <div class="section-title">YTD Key Performance Indicators</div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+
+    <!-- Monthly Chart + Salesperson -->
+    <div class="section two-col">
+      <div class="card">
+        <div class="card-header">
+          <span>Monthly Revenue vs Target</span>
+          <span id="chartNote" style="font-size:11px;color:var(--muted);font-style:italic"></span>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Salesperson Performance</div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="salespersonTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department + Top Clients -->
+    <div class="section two-col">
+      <div class="card">
+        <div class="card-header">Department Performance</div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="deptTable"></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Top Clients</div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="clientTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="section">
+      <div class="card">
+        <div class="card-header">
+          <span>Pipeline — Waiting Deals</span>
+          <span id="pipelineCount" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div class="card-body" style="padding:0; max-height:420px; overflow-y:auto;">
+          <table class="data-table" id="pipelineTable"></table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#dashContent -->
+</div><!-- /.main -->
+
+<div class="footer">
+  Qualitech Sales Dashboard &middot; Powered by Google Sheets &amp; Apps Script &middot;
+  Data refreshes on each page load
+</div>
+
+<!-- ── JavaScript ───────────────────────────────────────────────────────── -->
+<script>
+// ─── Utilities ───────────────────────────────────────────────────────────────
+
+// Find first matching field from a list of candidate names (case-insensitive)
+function getField(obj, candidates) {
+  if (!obj) return null;
+  var keys = Object.keys(obj);
+  for (var c = 0; c < candidates.length; c++) {
+    var cand = candidates[c].toLowerCase();
+    for (var k = 0; k < keys.length; k++) {
+      if (keys[k].trim().toLowerCase() === cand) return obj[keys[k]];
+    }
+  }
+  return null;
+}
+
+function firstOf(obj, candidates) {
+  var v = getField(obj, candidates);
+  return (v !== null && v !== undefined && v !== "") ? v : null;
+}
+
+function parseNum(v) {
+  if (v === null || v === undefined || v === "") return 0;
+  var n = parseFloat(String(v).replace(/[,฿%\s]/g, ""));
+  return isNaN(n) ? 0 : n;
+}
+
+function formatTHB(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  var n = parseNum(v);
+  if (n === 0) return "—";
+  if (n >= 1000000) return "฿" + (n / 1000000).toFixed(2) + "M";
+  if (n >= 1000)    return "฿" + (n / 1000).toFixed(1) + "K";
+  return "฿" + n.toLocaleString();
+}
+
+function safeStr(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  if (v instanceof Date) return v.toLocaleDateString("th-TH");
+  return String(v);
+}
+
+function pctColor(pct) {
+  if (pct >= 90) return "green";
+  if (pct >= 70) return "amber";
+  return "red";
+}
+
+// ─── KPI Cards ───────────────────────────────────────────────────────────────
+
+var REV_KEYS    = ["Revenue","Total Revenue","Sales","Actual","Actual Revenue","Approved Revenue","Amount"];
+var TARGET_KEYS = ["Target","Quota","Goal","Target Revenue","Budget"];
+var WON_KEYS    = ["Won","Deals Won","Count Won","Win Count","Won Deals","Closed Won"];
+var WINRATE_KEYS= ["Win Rate","Win%","Conversion","Win Ratio","Close Rate","Ach%","Achievement%","Achievement"];
+
+function renderKPIs(report, ssot) {
+  var grid = document.getElementById("kpiGrid");
+
+  // Use TOTAL row from monthly if available, then fall back to first summary row
+  var totalRow = null;
+  (report.monthly || []).forEach(function(r) {
+    if (String(r["Month"] || "").trim().toUpperCase() === "TOTAL") totalRow = r;
+  });
+  var src = totalRow || (report.summary && report.summary[0]) || {};
+
+  var rev    = parseNum(firstOf(src, REV_KEYS));
+  var target = parseNum(firstOf(src, TARGET_KEYS));
+  var achPct = target > 0 ? (rev / target * 100) : 0;
+
+  var wonRaw  = firstOf(src, WON_KEYS);
+  var wonNum  = wonRaw !== null ? parseNum(wonRaw) : 0;
+
+  var wrRaw   = firstOf(src, WINRATE_KEYS);
+  var wrNum   = wrRaw !== null ? parseNum(wrRaw) : 0;
+  if (wrNum > 0 && wrNum <= 1) wrNum *= 100;
+
+  var pipeVal   = (ssot && ssot.pipelineValue)  ? ssot.pipelineValue  : 0;
+  var pipeCount = (ssot && ssot.pipelineCount)  ? ssot.pipelineCount  : 0;
+  var totalDeals= (ssot && ssot.allDeals)       ? ssot.allDeals.length: 0;
+
+  var cards = [
+    { label: "Revenue YTD",    value: formatTHB(rev),    sub: "vs Target " + formatTHB(target), color: achPct >= 90 ? "green" : achPct >= 70 ? "amber" : "blue" },
+    { label: "Target YTD",     value: formatTHB(target), sub: "Annual sales target",             color: "blue" },
+    { label: "Achievement",    value: achPct > 0 ? achPct.toFixed(1) + "%" : "—", sub: "Revenue vs Target", color: achPct >= 90 ? "green" : achPct >= 70 ? "amber" : "red" },
+    { label: "Pipeline Value", value: formatTHB(pipeVal), sub: pipeCount + " deals waiting",     color: "amber" },
+    { label: "Win Rate",       value: wrNum > 0 ? wrNum.toFixed(1) + "%" : "—", sub: wonNum > 0 ? wonNum + " deals closed-won" : "Deals closed-won", color: wrNum >= 50 ? "green" : "amber" },
+    { label: "Total Deals",    value: totalDeals || "—", sub: "In SSOT pipeline",                color: "blue" }
+  ];
+
+  grid.innerHTML = cards.map(function(c) {
+    return '<div class="kpi-card ' + c.color + '">'
+      + '<div class="kpi-label">' + c.label + '</div>'
+      + '<div class="kpi-value">' + c.value + '</div>'
+      + '<div class="kpi-sub">' + c.sub + '</div>'
+      + '</div>';
+  }).join("");
+}
+
+// ─── Monthly Chart ────────────────────────────────────────────────────────────
+
+function renderMonthlyChart(monthly) {
+  if (!monthly || monthly.length === 0) {
+    document.getElementById("chartNote").textContent = "No monthly data";
+    return;
+  }
+
+  var rows = monthly.filter(function(r) {
+    return String(r["Month"] || "").trim().toUpperCase() !== "TOTAL";
+  });
+  if (rows.length === 0) return;
+
+  var labels   = rows.map(function(r) { return r["Month"] || ""; });
+  var revenues = rows.map(function(r) { return parseNum(firstOf(r, REV_KEYS)); });
+  var targets  = rows.map(function(r) { return parseNum(firstOf(r, TARGET_KEYS)); });
+  var hasTarget = targets.some(function(v) { return v > 0; });
+
+  var ctx = document.getElementById("monthlyChart").getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Revenue",
+          data: revenues,
+          backgroundColor: "rgba(79,142,247,0.75)",
+          borderRadius: 4,
+          order: 2
+        },
+        hasTarget ? {
+          label: "Target",
+          data: targets,
+          type: "line",
+          borderColor: "rgba(245,166,35,0.9)",
+          backgroundColor: "transparent",
+          borderWidth: 2,
+          pointBackgroundColor: "rgba(245,166,35,1)",
+          pointRadius: 4,
+          tension: 0.3,
+          order: 1
+        } : null
+      ].filter(Boolean)
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: "#8b90b4", font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return ctx.dataset.label + ": " + formatTHB(ctx.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: "#8b90b4" }, grid: { color: "rgba(46,51,84,0.4)" } },
+        y: {
+          ticks: { color: "#8b90b4", callback: function(v) { return formatTHB(v); } },
+          grid: { color: "rgba(46,51,84,0.4)" }
+        }
+      }
+    }
+  });
+}
+
+// ─── Salesperson Table ────────────────────────────────────────────────────────
+
+function renderSalesperson(rows) {
+  var table = document.getElementById("salespersonTable");
+  if (!rows || rows.length === 0) {
+    table.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No salesperson data</td></tr>';
+    return;
+  }
+  var nameKeys = ["Salesperson","Sales Rep","Rep","Name","Agent","Employee"];
+  var achKeys  = ["Achievement","Achievement%","Ach%","Win Rate","Win%","Rate"];
+
+  table.innerHTML = '<thead><tr><th>Salesperson</th><th class="right">Revenue</th><th class="right">Target</th><th class="right">Ach%</th></tr></thead>'
+    + '<tbody>'
+    + rows.map(function(r) {
+        var name  = safeStr(firstOf(r, nameKeys));
+        var rev   = parseNum(firstOf(r, REV_KEYS));
+        var tgt   = parseNum(firstOf(r, TARGET_KEYS));
+        var achV  = firstOf(r, achKeys);
+        var ach   = achV !== null ? parseNum(achV) : (tgt > 0 ? rev / tgt * 100 : 0);
+        if (ach > 0 && ach <= 1) ach *= 100;
+        var col   = pctColor(ach);
+        return '<tr>'
+          + '<td>' + name + '</td>'
+          + '<td class="right">' + formatTHB(rev) + '</td>'
+          + '<td class="right">' + formatTHB(tgt) + '</td>'
+          + '<td class="right"><span style="color:var(--' + col + ')">' + (ach > 0 ? ach.toFixed(1) + "%" : "—") + '</span></td>'
+          + '</tr>';
+      }).join("")
+    + '</tbody>';
+}
+
+// ─── Department Table ─────────────────────────────────────────────────────────
+
+function renderDepartment(rows) {
+  var table = document.getElementById("deptTable");
+  if (!rows || rows.length === 0) {
+    table.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No department data</td></tr>';
+    return;
+  }
+  var deptKeys = ["Department","Dept","Team","Division","Unit","Category"];
+
+  table.innerHTML = '<thead><tr><th>Department</th><th class="right">Revenue</th><th class="right">Target</th><th class="right">Progress</th></tr></thead>'
+    + '<tbody>'
+    + rows.map(function(r) {
+        var dept = safeStr(firstOf(r, deptKeys));
+        var rev  = parseNum(firstOf(r, REV_KEYS));
+        var tgt  = parseNum(firstOf(r, TARGET_KEYS));
+        var pct  = tgt > 0 ? Math.min(rev / tgt * 100, 150) : 0;
+        var col  = pctColor(pct);
+        return '<tr>'
+          + '<td>' + dept + '</td>'
+          + '<td class="right">' + formatTHB(rev) + '</td>'
+          + '<td class="right">' + formatTHB(tgt) + '</td>'
+          + '<td class="right" style="min-width:90px">'
+          +   '<span style="font-size:12px;color:var(--' + col + ')">' + (pct > 0 ? pct.toFixed(0) + "%" : "—") + '</span>'
+          +   '<div class="progress-bar"><div class="progress-bar-fill ' + col + '" style="width:' + Math.min(pct, 100) + '%"></div></div>'
+          + '</td>'
+          + '</tr>';
+      }).join("")
+    + '</tbody>';
+}
+
+// ─── Top Clients Table ────────────────────────────────────────────────────────
+
+function renderTopClients(rows) {
+  var table = document.getElementById("clientTable");
+  if (!rows || rows.length === 0) {
+    table.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No client data</td></tr>';
+    return;
+  }
+  var clientKeys = ["Client","Customer","Company","Account","Name"];
+  var dealsKeys  = ["Deals","Count","Orders","Transactions","Deal Count","No. of Deals"];
+  var rankKeys   = ["Rank","#","No","Ranking"];
+
+  table.innerHTML = '<thead><tr><th>#</th><th>Client</th><th class="right">Revenue</th><th class="right">Deals</th></tr></thead>'
+    + '<tbody>'
+    + rows.slice(0, 10).map(function(r, i) {
+        var client = safeStr(firstOf(r, clientKeys));
+        var rev    = parseNum(firstOf(r, REV_KEYS));
+        var deals  = firstOf(r, dealsKeys);
+        var rank   = firstOf(r, rankKeys) || (i + 1);
+        return '<tr>'
+          + '<td style="color:var(--muted)">' + rank + '</td>'
+          + '<td>' + client + '</td>'
+          + '<td class="right">' + formatTHB(rev) + '</td>'
+          + '<td class="right">' + (deals !== null ? deals : "—") + '</td>'
+          + '</tr>';
+      }).join("")
+    + '</tbody>';
+}
+
+// ─── Pipeline Table ───────────────────────────────────────────────────────────
+
+function renderPipeline(reportPipeline, ssot) {
+  var table    = document.getElementById("pipelineTable");
+  var countEl  = document.getElementById("pipelineCount");
+
+  var data = (reportPipeline && reportPipeline.length > 0)
+    ? reportPipeline
+    : (ssot && ssot.waiting ? ssot.waiting : []);
+
+  if (!data || data.length === 0) {
+    table.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No pipeline data</td></tr>';
+    return;
+  }
+
+  countEl.textContent = data.length + " deals";
+
+  var allHeaders = Object.keys(data[0]).filter(function(h) { return h && h.trim(); });
+
+  // Priority order for columns to display
+  var priority = [
+    "Deal","Deal Name","Project","Opportunity","Title","Name",
+    "Client","Customer","Company",
+    "Value","Amount","Revenue","Value_num",
+    "Salesperson","Sales Rep","Rep","Owner",
+    "Status","Stage",
+    "Expected Close","Close Date","Expected Date","Due Date","Target Date"
+  ];
+
+  var cols = [];
+  priority.forEach(function(p) {
+    var found = allHeaders.find(function(h) {
+      return h.trim().toLowerCase() === p.toLowerCase();
+    });
+    if (found && cols.indexOf(found) === -1) cols.push(found);
+  });
+  if (cols.length === 0) cols = allHeaders.slice(0, 7);
+
+  var valueKeys  = ["Value","Amount","Revenue","Value_num","value","value_num"];
+  var statusKeys = ["Status","Stage","status","stage"];
+
+  table.innerHTML = '<thead><tr>'
+    + cols.map(function(h) {
+        var isRight = valueKeys.indexOf(h) !== -1;
+        return '<th' + (isRight ? ' class="right"' : '') + '>' + h + '</th>';
+      }).join("")
+    + '</tr></thead>'
+    + '<tbody>'
+    + data.map(function(r) {
+        return '<tr>' + cols.map(function(h) {
+          var v       = r[h];
+          var isVal   = valueKeys.indexOf(h)  !== -1;
+          var isStat  = statusKeys.indexOf(h) !== -1;
+          if (isVal) return '<td class="right">' + formatTHB(v) + '</td>';
+          if (isStat) {
+            var s   = String(v || "").toLowerCase();
+            var cls = s === "waiting" ? "waiting"
+                    : (s === "win" || s === "won")       ? "win"
+                    : (s === "lost" || s === "lose")     ? "lost"
+                    : "";
+            return '<td><span class="status-badge ' + cls + '">' + safeStr(v) + '</span></td>';
+          }
+          if (v instanceof Date) return '<td>' + v.toLocaleDateString("th-TH") + '</td>';
+          return '<td>' + safeStr(v) + '</td>';
+        }).join("") + '</tr>';
+      }).join("")
+    + '</tbody>';
+}
+
+// ─── Main render ──────────────────────────────────────────────────────────────
+
+function renderDashboard(data) {
+  document.getElementById("loadingState").style.display = "none";
+  document.getElementById("dashContent").style.display  = "block";
+
+  if (data.fetchedAt) {
+    var d = new Date(data.fetchedAt);
+    document.getElementById("fetchedAt").textContent =
+      "Last updated: " + d.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  }
+
+  if (data.error) {
+    var box = document.getElementById("errorBox");
+    box.textContent = "Warning: " + data.error;
+    box.style.display = "block";
+  }
+
+  var report = data.report || {};
+  var ssot   = data.ssot   || {};
+
+  renderKPIs(report, ssot);
+  renderMonthlyChart(report.monthly     || []);
+  renderSalesperson(report.salesperson  || []);
+  renderDepartment(report.department    || []);
+  renderTopClients(report.topClients    || []);
+  renderPipeline(report.pipeline        || [], ssot);
+}
+
+function showError(err) {
+  document.getElementById("loadingState").style.display = "none";
+  var box = document.getElementById("errorBox");
+  box.textContent = "Error loading data: " + (err.message || String(err));
+  box.style.display = "block";
+  document.getElementById("dashContent").style.display = "block";
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+google.script.run
+  .withSuccessHandler(renderDashboard)
+  .withFailureHandler(showError)
+  .getSalesDashboardData();
+</script>
+</body>
+</html>
