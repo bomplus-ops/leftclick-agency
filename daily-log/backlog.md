@@ -5,7 +5,7 @@ Status: `open` | `done` | `blocked` | `dropped`
 
 | Task | Status | Days Open | Notes |
 |------|--------|-----------|-------|
-| Plausible account activation | open | 9 | plausible.io → Sign up → Add site: `leftclick-agency.netlify.app`. Script already deployed. Per 2026-05-24 log: mark `done` or `dropped` today — no further extension. |
+| Plausible account activation | dropped | 16 | Deadline was 2026-05-31. Never activated. Tracking script is still embedded in all 4 pages — account can be created anytime, but May 2026 data is permanently lost. If activated now, June 1 becomes Day 1. |
 | Netlify Forms → Slack webhook | open | 9 | Netlify Dashboard → Forms → contact → Notifications → Add Slack webhook. |
 | Branded OG image (1200×630px) | in-progress | 9 | **Code done 2026-05-25**: `og:image` + `twitter:image` tags added to all 4 pages, pointing to `/og-image.png`. One step left: create the PNG (dark bg, emerald wordmark, tagline, 1200×630) in Canva/Figma and upload it to the Netlify site root. |
 | Create this backlog.md | done | 0 | Done 2026-05-21 by Daily Workflow Bot. |
