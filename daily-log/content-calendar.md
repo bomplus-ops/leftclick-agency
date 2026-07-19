@@ -1,6 +1,6 @@
 # LinkedIn Content Calendar
 
-Last updated: 2026-07-14
+Last updated: 2026-07-19
 
 | Date | Theme | Hook Direction | Status |
 |------|-------|----------------|--------|
