@@ -1,6 +1,6 @@
 # LinkedIn Content Calendar
 
-Last updated: 2026-08-13 (bot)
+Last updated: 2026-08-14 (bot)
 
 | Date | Theme | Hook Direction | Status |
 |------|-------|----------------|--------|
@@ -15,8 +15,8 @@ Last updated: 2026-08-13 (bot)
 | 2026-07-31 | TBD | No draft created | ✗ MISSED — no action taken |
 | 2026-08-04 | Reporting Automation | Make + OpenAI + Slack automated reporting pipeline | ✗ MISSED — draft was ready; no post. Closed 2026-08-10 |
 | 2026-08-07 | Chatbot / Client Onboarding | HubSpot → Slack bot → Calendly onboarding sequence | ✗ MISSED — draft was ready; no post. Closed 2026-08-10 |
-| **2026-08-11** | **PM Automation** | **Manual status reporting → automated project tracking** | **🔴 2 DAYS LATE — LAST CHANCE. Post TODAY (Thu Aug 13) or mark MISSED. File: `daily-log/2026-08-11-post.md` lines 58–85** |
-| **2026-08-14** | **AI Asset Generators** | **Manual proposal writing → AI-generated client deliverables** | **✅ Draft written — `daily-log/2026-08-14-post.md` — post Thu Aug 14 @ 9am** |
+| 2026-08-11 | PM Automation | Manual status reporting → automated project tracking | ✗ MISSED — window closed Thu Aug 13. 11th consecutive miss since Jun 10. |
+| **2026-08-14** | **AI Asset Generators** | **Manual proposal writing → AI-generated client deliverables** | **🔴 POST TODAY @ 9AM — Draft ready at `daily-log/2026-08-14-post.md` lines 58–82** |
 | 2026-08-17 | TBD | Next Monday post | ⏳ Bot drafts Sat Aug 16 |
 | 2026-08-21 | TBD | Next Thursday post | ⏳ Bot drafts Wed Aug 20 |
 
