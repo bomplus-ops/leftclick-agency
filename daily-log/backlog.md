@@ -3,15 +3,15 @@
 Updated by Daily Workflow Bot each morning.
 Status: `open` | `done` | `blocked` | `dropped`
 
-Last updated: 2026-08-17
+Last updated: 2026-08-18
 
 | Task | Status | Opened | Days Open | Notes |
 |------|--------|--------|-----------|-------|
-| Netlify Forms → email notification | **open — CRITICAL [SKIPPED ×20]** | 2026-05-21 | **88** | 3-min fix: `app.netlify.com` → leftclick-agency → Site configuration → Forms → Form notifications → Add notification → Email → `bomplus@gmail.com` → Save → submit test form at `/contact.html` → confirm email arrives. Every contact-form lead is silently lost without this. |
-| Plausible account activation | **open — CRITICAL [SKIPPED ×20]** | 2026-05-22 | **87** | Script already live in all 4 HTML pages. 3 min at `plausible.io` → Add site → `leftclick-agency.netlify.app` → verify. All post-driven traffic is permanently invisible without this. |
-| Branded OG image (1200×630px) | **open — CRITICAL** | 2026-05-21 | **88** | Every LinkedIn link share shows a blank grey card. Canva → 1200×630px → black bg → "Left**Click**" wordmark (Click in `#10b981`) → "AI Automation for Ambitious Agencies" → export PNG → add to repo root as `og-image.png` → update `og:image` meta tags in all 4 HTML files → commit → deploy → verify at `opengraph.xyz/leftclick-agency.netlify.app`. 15 min. |
-| Post Aug 14 LinkedIn content | **open — URGENT [3 DAYS PAST DUE — decide today]** | 2026-08-14 | **3** | Draft fully written at `daily-log/2026-08-14-post.md` lines 58–82. Not confirmed posted as of Aug 17. Post today or formally mark ✗ MISSED — ambiguity wastes future attention every morning. |
-| Post Aug 17 LinkedIn content | **open — TODAY @ 9am — POST NOW** | 2026-08-15 | **2** | Draft written 2026-08-15 at `daily-log/2026-08-17-post.md`. Theme: Workflow Automation. Ready-to-post text lines 69–96. After posting: copy URL → update checklist in file → update content-calendar.md → commit. |
+| Netlify Forms → email notification | **open — CRITICAL [SKIPPED ×20]** | 2026-05-21 | **89** | 3-min fix: `app.netlify.com` → leftclick-agency → Site configuration → Forms → Form notifications → Add notification → Email → `bomplus@gmail.com` → Save → submit test form at `/contact.html` → confirm email arrives. Every contact-form lead is silently lost without this. |
+| Plausible account activation | **open — CRITICAL [SKIPPED ×20]** | 2026-05-22 | **88** | Script already live in all 4 HTML pages. 3 min at `plausible.io` → Add site → `leftclick-agency.netlify.app` → verify. All post-driven traffic is permanently invisible without this. |
+| Branded OG image (1200×630px) | **open — CRITICAL** | 2026-05-21 | **89** | Every LinkedIn link share shows a blank grey card. Canva → 1200×630px → black bg → "Left**Click**" wordmark (Click in `#10b981`) → "AI Automation for Ambitious Agencies" → export PNG → add to repo root as `og-image.png` → update `og:image` meta tags in all 4 HTML files → commit → deploy → verify at `opengraph.xyz/leftclick-agency.netlify.app`. 15 min. |
+| Post Aug 14 LinkedIn content | **open — URGENT [4 DAYS PAST DUE — close today]** | 2026-08-14 | **4** | Draft fully written at `daily-log/2026-08-14-post.md` lines 58–82. Still UNCONFIRMED as of Aug 18. Post today as late evergreen content or formally mark ✗ MISSED. 4 days of ambiguity; pick one and move on. |
+| Post Aug 17 LinkedIn content | **open — UNCONFIRMED [1 DAY PAST DUE]** | 2026-08-15 | **3** | Draft at `daily-log/2026-08-17-post.md` lines 69–96. Not confirmed posted as of Aug 18. Check LinkedIn activity → if live, copy URL and confirm; if not posted, post it now (still fresh). |
 | Post Aug 11 LinkedIn content or mark missed | **dropped — window closed** | 2026-08-11 | — | Last-chance deadline (Thu Aug 13) passed without a post. Officially missed — 11 consecutive misses since Jun 10. |
 | Confirm Jul 3 post or mark missed | **dropped — window closed** | 2026-07-04 | — | Closed 2026-08-11 in content-calendar.md. Day 39 — confirmation window passed. No action needed. |
 | Confirm Jul 7 post or mark missed | **dropped — window closed** | 2026-07-08 | — | Closed 2026-08-11 in content-calendar.md. Day 35 — window passed. |

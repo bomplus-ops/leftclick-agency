@@ -1,6 +1,6 @@
 # LinkedIn Content Calendar
 
-Last updated: 2026-08-17 (bot)
+Last updated: 2026-08-18 (bot)
 
 | Date | Theme | Hook Direction | Status |
 |------|-------|----------------|--------|
@@ -16,9 +16,9 @@ Last updated: 2026-08-17 (bot)
 | 2026-08-04 | Reporting Automation | Make + OpenAI + Slack automated reporting pipeline | ✗ MISSED — draft was ready; no post. Closed 2026-08-10 |
 | 2026-08-07 | Chatbot / Client Onboarding | HubSpot → Slack bot → Calendly onboarding sequence | ✗ MISSED — draft was ready; no post. Closed 2026-08-10 |
 | 2026-08-11 | PM Automation | Manual status reporting → automated project tracking | ✗ MISSED — window closed Thu Aug 13. 11th consecutive miss since Jun 10. |
-| **2026-08-14** | **AI Asset Generators** | **Manual proposal writing → AI-generated client deliverables** | **🔴 UNCONFIRMED — 3 days past due. Post today or mark ✗ MISSED in this file. Decide today.** |
-| **2026-08-17** | **Workflow Automation** | **Manual ops audit → 4 targeted automations → 14h/week recovered** | **🚨 POST TODAY @ 9am — `daily-log/2026-08-17-post.md` lines 69–96. TODAY IS PUBLISH DAY.** |
-| 2026-08-21 | TBD | Next Thursday post | ⏳ Bot drafts Wed Aug 20 |
+| **2026-08-14** | **AI Asset Generators** | **Manual proposal writing → AI-generated client deliverables** | **🔴 UNCONFIRMED — 4 days past due. Post today as late evergreen or mark ✗ MISSED. Decide today.** |
+| **2026-08-17** | **Workflow Automation** | **Manual ops audit → 4 targeted automations → 14h/week recovered** | **🔴 UNCONFIRMED — 1 day past due. Check LinkedIn activity → confirm URL or post now.** |
+| 2026-08-21 | TBD | Next Thursday post — set hook direction by EOD Aug 18 | ⏳ Bot drafts Wed Aug 19 |
 
 ## Cadence
 - Posts go out on Mondays and Thursdays, targeting ~9am local.
