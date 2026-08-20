@@ -1,6 +1,6 @@
 # LinkedIn Content Calendar
 
-Last updated: 2026-08-19 (bot)
+Last updated: 2026-08-20 (bot)
 
 | Date | Theme | Hook Direction | Status |
 |------|-------|----------------|--------|
@@ -16,9 +16,9 @@ Last updated: 2026-08-19 (bot)
 | 2026-08-04 | Reporting Automation | Make + OpenAI + Slack automated reporting pipeline | ✗ MISSED — draft was ready; no post. Closed 2026-08-10 |
 | 2026-08-07 | Chatbot / Client Onboarding | HubSpot → Slack bot → Calendly onboarding sequence | ✗ MISSED — draft was ready; no post. Closed 2026-08-10 |
 | 2026-08-11 | PM Automation | Manual status reporting → automated project tracking | ✗ MISSED — window closed Thu Aug 13. 11th consecutive miss since Jun 10. |
-| **2026-08-14** | **AI Asset Generators** | **Manual proposal writing → AI-generated client deliverables** | **🔴 UNCONFIRMED — 5 days past due. Bot closes as MISSED tomorrow (Aug 20) if no URL confirmed.** |
-| **2026-08-17** | **Workflow Automation** | **Manual ops audit → 4 targeted automations → 14h/week recovered** | **🔴 UNCONFIRMED — 2 days past due. Final grace day today. Post or confirm now.** |
-| 2026-08-21 | Cold Outreach / Lead Gen | AI cold email system: 1.2% → 4.7% reply rate, 4× meetings (client result) | ✅ DRAFT READY — review today, post Thu ~9am |
+| 2026-08-14 | AI Asset Generators | Manual proposal writing → AI-generated client deliverables | ✗ MISSED — window closed 2026-08-20 (no URL confirmed by deadline) |
+| **2026-08-17** | **Workflow Automation** | **Manual ops audit → 4 targeted automations → 14h/week recovered** | **🔴 UNCONFIRMED — 3 days past due. FINAL DAY. Confirm or close today. Bot closes as MISSED tomorrow.** |
+| **2026-08-21** | **Cold Outreach / Lead Gen** | **AI cold email system: 1.2% → 4.7% reply rate, 4× meetings (client result)** | **✅ DRAFT READY — POST TOMORROW ~9am** |
 
 ## Cadence
 - Posts go out on Mondays and Thursdays, targeting ~9am local.
