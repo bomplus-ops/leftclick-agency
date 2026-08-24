@@ -21,12 +21,12 @@ function getSalesDashboardData() {
   return result;
 }
 
-// ── SSOT — reads all tabs ─────────────────────────────────────────────────────
+// ── SSOT ──────────────────────────────────────────────────────────────────────
 function fetchSsotSheet(id) {
   var ss = SpreadsheetApp.openById(id);
+  var allSheetNames = ss.getSheets().map(function(s){ return s.getName(); });
 
-  // ── Raw deal data ─────────────────────────────────────────────────────────
-  // Priority: exact name → fallback to sheet with most rows
+  // Raw deal data — try named tabs then largest sheet
   var rawSheet = ss.getSheetByName("Raw Data (2026 Filtered)")
     || ss.getSheetByName("DB_DEALS")
     || ss.getSheetByName("SSOT")
@@ -34,10 +34,35 @@ function fetchSsotSheet(id) {
 
   var rows = sheetToObjects(rawSheet);
 
-  // Categorise by Status
+  // ── DEBUG: expose real column names and sample values ─────────────────────
+  var sampleHeaders = rows.length > 0 ? Object.keys(rows[0]) : [];
+  var sampleRow     = rows.length > 0 ? rows[0] : {};
+
+  // Unique status values (first 20)
+  var statusSet = {};
+  rows.forEach(function(r) {
+    var sv = String(r["Status"] || r["status"] || r["STATUS"] || "").trim();
+    if (sv) statusSet[sv] = (statusSet[sv] || 0) + 1;
+  });
+
+  // Unique Sale values (first 10)
+  var saleSet = {};
+  rows.forEach(function(r) {
+    var sv = String(r["Sale"] || r["sale"] || r["SALE"] || r["Salesperson"] || "").trim();
+    if (sv) saleSet[sv] = (saleSet[sv] || 0) + 1;
+  });
+
+  // ── Detect actual column names by scanning variants ───────────────────────
+  var statusCol = detectCol(rows, ["Status","status","STATUS","Deal Status","Pipeline Status"]);
+  var saleCol   = detectCol(rows, ["Sale","sale","SALE","Salesperson","Sales Rep","Rep","Agent"]);
+  var valueCol  = detectCol(rows, ["Value","value","VALUE","Amount","amount","Revenue","Deal Value"]);
+  var clientCol = detectCol(rows, ["Client Name","client name","Client","Customer","Company","Account"]);
+  var deptCol   = detectCol(rows, ["Dep Responsibility","Department","Dept","Department Responsibility"]);
+
+  // ── Categorise by Status ──────────────────────────────────────────────────
   var bidding=[], waiting=[], won=[], lost=[], budgetary=[], backlog=[];
   rows.forEach(function(r) {
-    var s = String(r["Status"] || "").trim().toLowerCase();
+    var s = String(r[statusCol] || "").trim().toLowerCase();
     if      (s === "bidding")              bidding.push(r);
     else if (s === "waiting")              waiting.push(r);
     else if (s === "win"  || s === "won")  won.push(r);
@@ -46,13 +71,13 @@ function fetchSsotSheet(id) {
     else if (s === "backlog")              backlog.push(r);
   });
 
-  // Aggregate by Sale (salesperson)
+  // ── Aggregate by Salesperson ──────────────────────────────────────────────
   var bySale = {};
   rows.forEach(function(r) {
-    var sale = String(r["Sale"] || "Unknown").trim();
-    var val  = toNum(r["Value"]);
-    var s    = String(r["Status"] || "").trim().toLowerCase();
-    if (!bySale[sale]) bySale[sale] = { sale: sale, bidding:0, waiting:0, win:0, lost:0, budgetary:0, backlog:0, total:0 };
+    var sale = String(r[saleCol] || "Unknown").trim();
+    var val  = toNum(r[valueCol]);
+    var s    = String(r[statusCol] || "").trim().toLowerCase();
+    if (!bySale[sale]) bySale[sale] = { sale:sale, bidding:0, waiting:0, win:0, lost:0, budgetary:0, backlog:0, total:0 };
     bySale[sale].total += val;
     if      (s === "bidding")              bySale[sale].bidding   += val;
     else if (s === "waiting")              bySale[sale].waiting   += val;
@@ -66,13 +91,13 @@ function fetchSsotSheet(id) {
     .filter(function(s){ return s.sale && s.sale !== "Unknown"; })
     .sort(function(a,b){ return b.total - a.total; });
 
-  // Aggregate by Client Name
+  // ── Aggregate by Client ───────────────────────────────────────────────────
   var byClient = {};
   rows.forEach(function(r) {
-    var client = String(r["Client Name"] || "Unknown").trim();
-    var val    = toNum(r["Value"]);
-    var s      = String(r["Status"] || "").trim().toLowerCase();
-    if (!byClient[client]) byClient[client] = { client: client, bidding:0, waiting:0, win:0, lost:0, total:0 };
+    var client = String(r[clientCol] || "Unknown").trim();
+    var val    = toNum(r[valueCol]);
+    var s      = String(r[statusCol] || "").trim().toLowerCase();
+    if (!byClient[client]) byClient[client] = { client:client, bidding:0, waiting:0, win:0, lost:0, total:0 };
     byClient[client].total += val;
     if      (s === "bidding")              byClient[client].bidding += val;
     else if (s === "waiting")              byClient[client].waiting += val;
@@ -85,12 +110,12 @@ function fetchSsotSheet(id) {
     .sort(function(a,b){ return b.total - a.total; })
     .slice(0, 10);
 
-  // Aggregate by Dep Responsibility
+  // ── Aggregate by Dept ─────────────────────────────────────────────────────
   var byDept = {};
   rows.forEach(function(r) {
-    var dept = String(r["Dep Responsibility"] || "Unknown").trim();
-    var val  = toNum(r["Value"]);
-    if (!byDept[dept]) byDept[dept] = { dept: dept, total: 0 };
+    var dept = String(r[deptCol] || "Unknown").trim();
+    var val  = toNum(r[valueCol]);
+    if (!byDept[dept]) byDept[dept] = { dept:dept, total:0 };
     byDept[dept].total += val;
   });
   var departments = Object.keys(byDept)
@@ -98,12 +123,22 @@ function fetchSsotSheet(id) {
     .filter(function(d){ return d.dept && d.dept !== "Unknown"; })
     .sort(function(a,b){ return b.total - a.total; });
 
-  // ── Pre-aggregated tabs (use directly if available) ───────────────────────
-  var pipelineTab = ss.getSheetByName("Pipeline (Waiting)");
+  // Pipeline tab (pre-filtered)
+  var pipelineTab  = ss.getSheetByName("Pipeline (Waiting)");
   var pipelineRows = pipelineTab ? sheetToObjects(pipelineTab) : waiting;
 
   return {
-    rawSheetUsed:   rawSheet.getName(),          // debug: confirm which tab was read
+    // Debug info
+    debug: {
+      allSheetNames:  allSheetNames,
+      rawSheetUsed:   rawSheet.getName(),
+      sampleHeaders:  sampleHeaders,
+      sampleRow:      JSON.stringify(sampleRow).slice(0, 500),
+      statusValues:   statusSet,
+      saleValues:     saleSet,
+      detectedCols:   { status: statusCol, sale: saleCol, value: valueCol, client: clientCol, dept: deptCol }
+    },
+    // Data
     totalRecords:   rows.length,
     bidding:        bidding,
     waiting:        waiting,
@@ -111,14 +146,14 @@ function fetchSsotSheet(id) {
     lost:           lost,
     budgetary:      budgetary,
     backlog:        backlog,
-    biddingValue:   sumField(bidding,   ["Value"]),
-    waitingValue:   sumField(waiting,   ["Value"]),
-    wonValue:       sumField(won,       ["Value"]),
-    lostValue:      sumField(lost,      ["Value"]),
-    budgetaryValue: sumField(budgetary, ["Value"]),
-    backlogValue:   sumField(backlog,   ["Value"]),
+    biddingValue:   sumField(bidding,   [valueCol]),
+    waitingValue:   sumField(waiting,   [valueCol]),
+    wonValue:       sumField(won,       [valueCol]),
+    lostValue:      sumField(lost,      [valueCol]),
+    budgetaryValue: sumField(budgetary, [valueCol]),
+    backlogValue:   sumField(backlog,   [valueCol]),
     pipelineCount:  pipelineRows.length,
-    pipelineValue:  sumField(pipelineRows, ["Value"]),
+    pipelineValue:  sumField(pipelineRows, [valueCol]),
     salespersons:   salespersons,
     topClients:     topClients,
     departments:    departments,
@@ -127,6 +162,17 @@ function fetchSsotSheet(id) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+function detectCol(rows, candidates) {
+  if (!rows || rows.length === 0) return candidates[0];
+  var keys = Object.keys(rows[0]);
+  for (var c = 0; c < candidates.length; c++) {
+    for (var k = 0; k < keys.length; k++) {
+      if (keys[k].trim().toLowerCase() === candidates[c].toLowerCase()) return keys[k];
+    }
+  }
+  return candidates[0]; // fallback to first candidate
+}
+
 function findLargestSheet(ss) {
   var sheets = ss.getSheets(), largest = sheets[0], maxRows = 0;
   sheets.forEach(function(s) {
