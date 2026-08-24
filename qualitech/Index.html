@@ -212,6 +212,86 @@
     .wr-hi  { background: var(--green-light); color: var(--green-dark); }
     .wr-mid { background: var(--amber-light); color: #b45309; }
     .wr-lo  { background: var(--red-light);   color: var(--red-dark); }
+
+    /* ─── CEO features ─── */
+    .action-btns { display: flex; gap: 8px; align-items: center; }
+    .a-btn {
+      background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px;
+      color: var(--text2); padding: 6px 12px; font-size: 12px; font-weight: 600;
+      font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      transition: all .15s;
+    }
+    .a-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+    .a-btn.primary { background: var(--red); color: #fff; border-color: var(--red); }
+    .a-btn.primary:hover { background: var(--red-dark); border-color: var(--red-dark); color: #fff; }
+
+    /* Executive Summary */
+    .exec-summary {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff; border-radius: var(--radius); padding: 22px 26px;
+      margin-bottom: 22px; box-shadow: var(--shadow);
+      position: relative; overflow: hidden;
+    }
+    .exec-summary::before {
+      content: ""; position: absolute; top: 0; right: 0; width: 120px; height: 120px;
+      background: radial-gradient(circle at top right, rgba(227,30,36,.3) 0%, transparent 70%);
+    }
+    .exec-title { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #E31E24; font-weight: 700; margin-bottom: 8px; }
+    .exec-narrative { font-size: 16px; line-height: 1.6; color: #f3f4f6; font-weight: 500; position: relative; z-index: 1; }
+    .exec-narrative strong { color: #fff; font-weight: 700; }
+    .exec-narrative .em-green { color: #34d399; }
+    .exec-narrative .em-red   { color: #f87171; }
+    .exec-narrative .em-amber { color: #fbbf24; }
+
+    /* Insight cards */
+    .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 22px; }
+    .insight {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid; border-radius: var(--radius);
+      padding: 14px 18px; box-shadow: var(--shadow-sm);
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .insight.ok     { border-left-color: var(--green); }
+    .insight.warn   { border-left-color: var(--amber); }
+    .insight.risk   { border-left-color: var(--red);   }
+    .insight.info   { border-left-color: var(--blue);  }
+    .insight-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+    .insight-body { flex: 1; }
+    .insight-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 3px; }
+    .insight-text { font-size: 13px; color: var(--text); font-weight: 500; line-height: 1.4; }
+
+    /* Trend indicator inside KPI */
+    .kpi-trend { font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; }
+    .kpi-trend.up   { color: var(--green-dark); }
+    .kpi-trend.down { color: var(--red); }
+    .kpi-trend.flat { color: var(--muted); }
+
+    /* Present Mode — hide chrome, upscale content */
+    body.present-mode .header, body.present-mode .filter-bar, body.present-mode .footer { display: none !important; }
+    body.present-mode .main { padding: 20px 40px; max-width: none; }
+    body.present-mode .kpi-value { font-size: 40px; }
+    body.present-mode .exec-narrative { font-size: 20px; }
+    body.present-mode .section { margin-bottom: 20px; }
+    .present-exit {
+      position: fixed; top: 16px; right: 16px; z-index: 1000;
+      background: var(--red); color: #fff; border: none; border-radius: 6px;
+      padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+      display: none;
+    }
+    body.present-mode .present-exit { display: block; }
+
+    /* Print styles — clean PDF export */
+    @media print {
+      body { background: #fff; }
+      .filter-bar, .footer, .action-btns, .present-exit { display: none !important; }
+      .header { position: static; box-shadow: none; border-bottom: 2px solid var(--red); }
+      .card, .kpi-card, .insight, .exec-summary { break-inside: avoid; box-shadow: none; }
+      .exec-summary { background: #1a1a1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .kpi-card, .card, .insight { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .main { padding: 16px; max-width: none; }
+      .section { margin-bottom: 16px; page-break-inside: avoid; }
+      .chart-wrap, .chart-wrap-lg, .chart-wrap-xl { height: 220px; }
+    }
   </style>
 </head>
 <body>
@@ -226,8 +306,13 @@
     </div>
     <span class="hbadge">Sales Dashboard</span>
   </div>
-  <div class="header-meta" id="fetchedAt">Loading…</div>
+  <div class="action-btns">
+    <button class="a-btn" id="btnPrint" title="Print / Save as PDF">🖨 Print</button>
+    <button class="a-btn primary" id="btnPresent" title="Presentation mode (F)">▶ Present</button>
+    <span class="header-meta" id="fetchedAt" style="margin-left:8px">Loading…</span>
+  </div>
 </div>
+<button class="present-exit" id="btnExitPresent">✕ Exit Present (Esc)</button>
 
 <!-- Filter Bar -->
 <div class="filter-bar no-raw" id="filterBar">
@@ -253,6 +338,16 @@
   </div>
   <div id="errorBox" class="error-box" style="display:none"></div>
   <div id="dashContent" style="display:none">
+
+    <!-- Executive Summary — auto-generated narrative for CEO -->
+    <div class="exec-summary" id="execSummary">
+      <div class="exec-title">Executive Summary</div>
+      <div class="exec-narrative" id="execNarrative">—</div>
+    </div>
+
+    <!-- Insights row — 3–4 auto highlighted takeaways -->
+    <div class="insight-grid" id="insightGrid"></div>
+
     <div class="section">
       <div class="section-title" id="kpiTitle">KPI Summary</div>
       <div class="kpi-grid" id="kpiGrid"></div>
@@ -703,6 +798,8 @@ function renderPipelineTable(rows) {
 }
 
 function renderAll(s) {
+  renderExecSummary(s);
+  renderInsights(s);
   renderKPIs(s);
   renderMonthlyChart(s.monthly||[]);
   renderSaleChart(s.salespersons||[]);
@@ -713,6 +810,104 @@ function renderAll(s) {
   document.getElementById("pipelineCount").textContent=
     (s.pipelineCount||0)+" deals · "+fmtMoney(s.pipelineValue||s.waitingValue||0);
 }
+
+// ─── Executive Summary — auto-generated narrative ────────────────────────────
+function renderExecSummary(s) {
+  var el = document.getElementById("execNarrative");
+  var total = s.totalRecords||0, won = s.wonCount||0, lost = s.lostCount||0, wait = s.waitingCount||0;
+  var wr = parseFloat(s.winRate)||0;
+  var wrCls = wr >= 70 ? "em-green" : wr >= 50 ? "em-amber" : "em-red";
+  var period = "the current period";
+  var monthly = s.monthly || [];
+  if (monthly.length) {
+    var first = monthly[0]["Month"], last = monthly[monthly.length-1]["Month"];
+    period = first === last ? first : first + "–" + last;
+  }
+  var topSale = s.topSalesperson || "—";
+  var topDept = (s.departments && s.departments[0]) ? s.departments[0].dept : "—";
+  var topDeptRev = (s.departments && s.departments[0]) ? fmtMoney(s.departments[0].win) : "—";
+  var topClient = (s.topClients && s.topClients[0]) ? s.topClients[0].client : "—";
+
+  el.innerHTML =
+    "In <strong>" + period + "</strong>, the team closed <strong class='em-green'>" + won.toLocaleString() +
+    " wins</strong> worth <strong class='em-green'>" + fmtMoney(s.wonValue) + "</strong> " +
+    "against <strong class='em-red'>" + lost.toLocaleString() + " losses</strong> (" + fmtMoney(s.lostValue||0) + "), " +
+    "achieving a <strong class='" + wrCls + "'>" + wr.toFixed(1) + "% win rate</strong>. " +
+    "<strong class='em-amber'>" + wait.toLocaleString() + " deals</strong> worth <strong class='em-amber'>" +
+    fmtMoney(s.waitingValue) + "</strong> remain in the pipeline. " +
+    "Top performer: <strong>" + topSale + "</strong>. Leading department: <strong>" + topDept + "</strong> (" + topDeptRev + " won).";
+}
+
+// ─── Insight cards — auto-derived key takeaways ──────────────────────────────
+function renderInsights(s) {
+  var el = document.getElementById("insightGrid");
+  var insights = [];
+  var wr = parseFloat(s.winRate)||0;
+
+  // Insight 1: Win rate assessment
+  if (wr >= 70) insights.push({t:"ok", i:"🎯", l:"Strong win rate", x:"Team is closing "+wr.toFixed(1)+"% of decided deals — well above healthy 60% threshold."});
+  else if (wr >= 50) insights.push({t:"warn", i:"⚖️", l:"Moderate win rate", x:"Win rate at "+wr.toFixed(1)+"% — room to push higher through better qualification."});
+  else insights.push({t:"risk", i:"⚠️", l:"Win rate concern", x:"Win rate of "+wr.toFixed(1)+"% is below healthy threshold — review lost-deal patterns."});
+
+  // Insight 2: Top salesperson concentration
+  if (s.salespersons && s.salespersons.length >= 2) {
+    var top = s.salespersons[0], totalWin = s.salespersons.reduce(function(a,x){return a+(x.win||0);},0);
+    var pct = totalWin > 0 ? (top.win/totalWin*100) : 0;
+    if (pct >= 40) insights.push({t:"warn", i:"👤", l:"Revenue concentration", x:(top.sale||"").split(" ")[0]+" contributes "+pct.toFixed(0)+"% of win revenue — consider distributing risk."});
+    else insights.push({t:"ok", i:"🏆", l:"Top performer", x:(top.sale||"—")+" leads with "+fmtMoney(top.win)+" ("+pct.toFixed(0)+"% of team)."});
+  }
+
+  // Insight 3: Client concentration risk
+  if (s.topClients && s.topClients.length >= 3) {
+    var top3 = s.topClients.slice(0,3).reduce(function(a,x){return a+(x.win||0);},0);
+    var allClientWin = s.topClients.reduce(function(a,x){return a+(x.win||0);},0);
+    var pct3 = allClientWin > 0 ? (top3/allClientWin*100) : 0;
+    if (pct3 >= 60) insights.push({t:"risk", i:"🏢", l:"Client concentration", x:"Top 3 clients = "+pct3.toFixed(0)+"% of tracked revenue — high dependency risk."});
+    else insights.push({t:"info", i:"🏢", l:"Client diversity", x:"Top 3 clients account for "+pct3.toFixed(0)+"% of revenue — healthy distribution."});
+  }
+
+  // Insight 4: Pipeline health
+  var pipe = parseFloat(s.pipelineValue||s.waitingValue)||0;
+  var won = parseFloat(s.wonValue)||0;
+  if (pipe > 0) {
+    var ratio = won > 0 ? (pipe/won*100) : 0;
+    if (ratio >= 100) insights.push({t:"ok", i:"💰", l:"Strong pipeline", x:"Pipeline ("+fmtMoney(pipe)+") is "+ratio.toFixed(0)+"% of won revenue — strong forward book."});
+    else if (ratio >= 50) insights.push({t:"info", i:"📈", l:"Pipeline building", x:"Pipeline "+fmtMoney(pipe)+" — represents "+ratio.toFixed(0)+"% of realised revenue."});
+    else insights.push({t:"warn", i:"📉", l:"Thin pipeline", x:"Pipeline of "+fmtMoney(pipe)+" is only "+ratio.toFixed(0)+"% of won revenue — bookings need attention."});
+  }
+
+  el.innerHTML = insights.map(function(x){
+    return '<div class="insight '+x.t+'">'+
+      '<div class="insight-icon">'+x.i+'</div>'+
+      '<div class="insight-body">'+
+        '<div class="insight-label">'+x.l+'</div>'+
+        '<div class="insight-text">'+x.x+'</div>'+
+      '</div></div>';
+  }).join("");
+}
+
+// ─── Present Mode + Print ─────────────────────────────────────────────────────
+function togglePresent(on) {
+  if (on === undefined) on = !document.body.classList.contains("present-mode");
+  document.body.classList.toggle("present-mode", on);
+  // Resize charts after transition
+  setTimeout(function(){ Object.keys(_charts).forEach(function(k){ _charts[k].resize(); }); }, 50);
+}
+document.addEventListener("DOMContentLoaded", function(){
+  var bp = document.getElementById("btnPresent");
+  var bx = document.getElementById("btnExitPresent");
+  var br = document.getElementById("btnPrint");
+  if (bp) bp.addEventListener("click", function(){ togglePresent(true); });
+  if (bx) bx.addEventListener("click", function(){ togglePresent(false); });
+  if (br) br.addEventListener("click", function(){ window.print(); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape") togglePresent(false);
+    if (e.key === "f" || e.key === "F") {
+      if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT")) return;
+      togglePresent();
+    }
+  });
+});
 
 function renderDashboard(data) {
   document.getElementById("loadingState").style.display="none";
