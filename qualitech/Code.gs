@@ -235,6 +235,14 @@ function normaliseClient(rows) {
     .slice(0, 10);
 }
 
+// Normalise legacy department names (e.g. "PISB" → "PIS-B")
+function normDeptName(name) {
+  if (!name) return name;
+  var n = String(name).trim();
+  var MAP = { "PISB": "PIS-B", "PISA": "PIS-A", "PIS B": "PIS-B", "PIS A": "PIS-A" };
+  return MAP[n] || n;
+}
+
 // ── Normalise Department Performance tab ──────────────────────────────────────
 // Exact columns (Report Generator v2.0):
 //   Department | Total Deals | Win | Lost | Win Rate % | Win Revenue (THB) | Total Revenue (THB)
@@ -247,7 +255,7 @@ function normaliseDept(rows) {
     var wrStr = String(pick(r, ["Win Rate %", "Win Rate"]) || "0").replace("%", "");
     var wrNum = toNum(wrStr);
     return {
-      dept:        pick(r, ["Department", "Dept", "Division"]),
+      dept:        normDeptName(pick(r, ["Department", "Dept", "Division"])),
       win:         win,
       other:       total > win ? total - win : 0,
       total:       total || win,
@@ -308,7 +316,7 @@ function fetchRawFromSource() {
         "Client Name": String(r[4]  || "").trim(),
         "Value (THB)": valNum,
         "Status":      status,
-        "Dept":        String(r[2]  || "").trim(),
+        "Dept":        normDeptName(String(r[2] || "").trim()),
         "Category":    String(r[5]  || "").trim()   // Project description
       });
     }
