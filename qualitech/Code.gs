@@ -1,11 +1,17 @@
 // ── Qualitech Sales Dashboard ── Code.gs ─────────────────────────────────────
-// SSOT sheet tabs: Executive Summary | Salesperson Performance |
-// Department Performance | Top Clients | Pipeline (Waiting) |
-// Raw Data (2026 Filtered) | Key Insights (2026)
+// Sheet: V2 Qualitech_Sales_Report_2026_YTD_Jan_Apr29
+// ID:    1aDvDAPCGVkhYw8ZA44fIfwP662phHUz4a3s-pAviX0g
+//
+// Tabs used:
+//   Executive Summary     → KPI summary + monthly breakdown
+//   Salesperson Performance → by-person breakdown
+//   Department Performance  → by-dept breakdown
+//   Top Clients             → top client list
+//   Pipeline (Waiting)      → active waiting deals
+//   Raw Data (2026 Filtered)→ deal-level rows (fallback)
 // ─────────────────────────────────────────────────────────────────────────────
 
-var SSOT_ID   = "1aDvDAPCGVkhYw8ZA44fIfwP662phHUz4a3s-pAviX0g";
-var REPORT_ID = "1PwMOaHk6QAt3ZJia9nV1J-fY5Av87HmVYtEZZSMqajM";
+var SSOT_ID = "1aDvDAPCGVkhYw8ZA44fIfwP662phHUz4a3s-pAviX0g";
 
 function doGet(e) {
   var html = HtmlService.createHtmlOutputFromFile("Index")
@@ -16,168 +22,207 @@ function doGet(e) {
 
 function getSalesDashboardData() {
   var result = { ssot: null, error: null, fetchedAt: new Date().toISOString() };
-  try { result.ssot = fetchSsotSheet(SSOT_ID); }
-  catch(e) { result.error = "SSOT: " + e.message; }
+  try { result.ssot = fetchAllTabs(SSOT_ID); }
+  catch(e) { result.error = e.message + "\n" + e.stack; }
   return result;
 }
 
-// ── SSOT ──────────────────────────────────────────────────────────────────────
-function fetchSsotSheet(id) {
-  var ss = SpreadsheetApp.openById(id);
-  var allSheetNames = ss.getSheets().map(function(s){ return s.getName(); });
+// ── Main: read every relevant tab ────────────────────────────────────────────
+function fetchAllTabs(id) {
+  var ss         = SpreadsheetApp.openById(id);
+  var sheetNames = ss.getSheets().map(function(s){ return s.getName(); });
 
-  // Raw deal data — try named tabs then largest sheet
-  var rawSheet = ss.getSheetByName("Raw Data (2026 Filtered)")
-    || ss.getSheetByName("DB_DEALS")
-    || ss.getSheetByName("SSOT")
-    || findLargestSheet(ss);
+  // ── 1. Executive Summary → KPIs + monthly ────────────────────────────────
+  var execSheet  = ss.getSheetByName("Executive Summary") || ss.getSheets()[0];
+  var exec       = parseExecutiveSummary(execSheet);
 
-  var rows = sheetToObjects(rawSheet);
+  // ── 2. Pre-aggregated tabs ────────────────────────────────────────────────
+  var salesTab   = ss.getSheetByName("Salesperson Performance");
+  var deptTab    = ss.getSheetByName("Department Performance");
+  var clientTab  = ss.getSheetByName("Top Clients");
+  var pipeTab    = ss.getSheetByName("Pipeline (Waiting)");
+  var rawTab     = ss.getSheetByName("Raw Data (2026 Filtered)") || findLargestSheet(ss);
 
-  // ── DEBUG: expose real column names and sample values ─────────────────────
-  var sampleHeaders = rows.length > 0 ? Object.keys(rows[0]) : [];
-  var sampleRow     = rows.length > 0 ? rows[0] : {};
+  var salesRows    = salesTab   ? sheetToObjects(salesTab)   : [];
+  var deptRows     = deptTab    ? sheetToObjects(deptTab)    : [];
+  var clientRows   = clientTab  ? sheetToObjects(clientTab)  : [];
+  var pipelineRows = pipeTab    ? sheetToObjects(pipeTab)    : [];
+  var rawRows      = rawTab     ? sheetToObjects(rawTab)     : [];
 
-  // Unique status values (first 20)
-  var statusSet = {};
-  rows.forEach(function(r) {
-    var sv = String(r["Status"] || r["status"] || r["STATUS"] || "").trim();
-    if (sv) statusSet[sv] = (statusSet[sv] || 0) + 1;
-  });
+  // ── 3. Normalise salesperson rows ─────────────────────────────────────────
+  var salespersons = normaliseSale(salesRows);
 
-  // Unique Sale values (first 10)
-  var saleSet = {};
-  rows.forEach(function(r) {
-    var sv = String(r["Sale"] || r["sale"] || r["SALE"] || r["Salesperson"] || "").trim();
-    if (sv) saleSet[sv] = (saleSet[sv] || 0) + 1;
-  });
+  // ── 4. Normalise top-client rows ──────────────────────────────────────────
+  var topClients = normaliseClient(clientRows);
 
-  // ── Detect actual column names by scanning variants ───────────────────────
-  var statusCol = detectCol(rows, ["Status","status","STATUS","Deal Status","Pipeline Status"]);
-  var saleCol   = detectCol(rows, ["Sale","sale","SALE","Salesperson","Sales Rep","Rep","Agent"]);
-  var valueCol  = detectCol(rows, ["Value","value","VALUE","Amount","amount","Revenue","Deal Value"]);
-  var clientCol = detectCol(rows, ["Client Name","client name","Client","Customer","Company","Account"]);
-  var deptCol   = detectCol(rows, ["Dep Responsibility","Department","Dept","Department Responsibility"]);
-
-  // ── Categorise by Status ──────────────────────────────────────────────────
-  var bidding=[], waiting=[], won=[], lost=[], budgetary=[], backlog=[];
-  rows.forEach(function(r) {
-    var s = String(r[statusCol] || "").trim().toLowerCase();
-    if      (s === "bidding")              bidding.push(r);
-    else if (s === "waiting")              waiting.push(r);
-    else if (s === "win"  || s === "won")  won.push(r);
-    else if (s === "lost" || s === "lose") lost.push(r);
-    else if (s === "budgetary")            budgetary.push(r);
-    else if (s === "backlog")              backlog.push(r);
-  });
-
-  // ── Aggregate by Salesperson ──────────────────────────────────────────────
-  var bySale = {};
-  rows.forEach(function(r) {
-    var sale = String(r[saleCol] || "Unknown").trim();
-    var val  = toNum(r[valueCol]);
-    var s    = String(r[statusCol] || "").trim().toLowerCase();
-    if (!bySale[sale]) bySale[sale] = { sale:sale, bidding:0, waiting:0, win:0, lost:0, budgetary:0, backlog:0, total:0 };
-    bySale[sale].total += val;
-    if      (s === "bidding")              bySale[sale].bidding   += val;
-    else if (s === "waiting")              bySale[sale].waiting   += val;
-    else if (s === "win"  || s === "won")  bySale[sale].win       += val;
-    else if (s === "lost" || s === "lose") bySale[sale].lost      += val;
-    else if (s === "budgetary")            bySale[sale].budgetary += val;
-    else if (s === "backlog")              bySale[sale].backlog   += val;
-  });
-  var salespersons = Object.keys(bySale)
-    .map(function(k){ return bySale[k]; })
-    .filter(function(s){ return s.sale && s.sale !== "Unknown"; })
-    .sort(function(a,b){ return b.total - a.total; });
-
-  // ── Aggregate by Client ───────────────────────────────────────────────────
-  var byClient = {};
-  rows.forEach(function(r) {
-    var client = String(r[clientCol] || "Unknown").trim();
-    var val    = toNum(r[valueCol]);
-    var s      = String(r[statusCol] || "").trim().toLowerCase();
-    if (!byClient[client]) byClient[client] = { client:client, bidding:0, waiting:0, win:0, lost:0, total:0 };
-    byClient[client].total += val;
-    if      (s === "bidding")              byClient[client].bidding += val;
-    else if (s === "waiting")              byClient[client].waiting += val;
-    else if (s === "win"  || s === "won")  byClient[client].win     += val;
-    else if (s === "lost" || s === "lose") byClient[client].lost    += val;
-  });
-  var topClients = Object.keys(byClient)
-    .map(function(k){ return byClient[k]; })
-    .filter(function(c){ return c.client && c.client !== "Unknown"; })
-    .sort(function(a,b){ return b.total - a.total; })
-    .slice(0, 10);
-
-  // ── Aggregate by Dept ─────────────────────────────────────────────────────
-  var byDept = {};
-  rows.forEach(function(r) {
-    var dept = String(r[deptCol] || "Unknown").trim();
-    var val  = toNum(r[valueCol]);
-    if (!byDept[dept]) byDept[dept] = { dept:dept, total:0 };
-    byDept[dept].total += val;
-  });
-  var departments = Object.keys(byDept)
-    .map(function(k){ return byDept[k]; })
-    .filter(function(d){ return d.dept && d.dept !== "Unknown"; })
-    .sort(function(a,b){ return b.total - a.total; });
-
-  // Pipeline tab (pre-filtered)
-  var pipelineTab  = ss.getSheetByName("Pipeline (Waiting)");
-  var pipelineRows = pipelineTab ? sheetToObjects(pipelineTab) : waiting;
+  // ── 5. Normalise dept rows ────────────────────────────────────────────────
+  var departments = normaliseDept(deptRows);
 
   return {
-    // Debug info
+    // debug: expose raw headers so we can verify column names
     debug: {
-      allSheetNames:  allSheetNames,
-      rawSheetUsed:   rawSheet.getName(),
-      sampleHeaders:  sampleHeaders,
-      sampleRow:      JSON.stringify(sampleRow).slice(0, 500),
-      statusValues:   statusSet,
-      saleValues:     saleSet,
-      detectedCols:   { status: statusCol, sale: saleCol, value: valueCol, client: clientCol, dept: deptCol }
+      sheetNames:       sheetNames,
+      execKPI:          exec.kpi,
+      salesHeaders:     salesRows.length  > 0 ? Object.keys(salesRows[0])    : [],
+      deptHeaders:      deptRows.length   > 0 ? Object.keys(deptRows[0])     : [],
+      clientHeaders:    clientRows.length > 0 ? Object.keys(clientRows[0])   : [],
+      pipelineHeaders:  pipelineRows.length > 0 ? Object.keys(pipelineRows[0]) : [],
+      rawHeaders:       rawRows.length    > 0 ? Object.keys(rawRows[0])      : [],
+      rawSheetUsed:     rawTab ? rawTab.getName() : "none"
     },
-    // Data
-    totalRecords:   rows.length,
-    bidding:        bidding,
-    waiting:        waiting,
-    won:            won,
-    lost:           lost,
-    budgetary:      budgetary,
-    backlog:        backlog,
-    biddingValue:   sumField(bidding,   [valueCol]),
-    waitingValue:   sumField(waiting,   [valueCol]),
-    wonValue:       sumField(won,       [valueCol]),
-    lostValue:      sumField(lost,      [valueCol]),
-    budgetaryValue: sumField(budgetary, [valueCol]),
-    backlogValue:   sumField(backlog,   [valueCol]),
-    pipelineCount:  pipelineRows.length,
-    pipelineValue:  sumField(pipelineRows, [valueCol]),
-    salespersons:   salespersons,
-    topClients:     topClients,
-    departments:    departments,
-    pipelineRows:   pipelineRows
+    // KPI from Executive Summary
+    totalRecords:    exec.kpi.totalDeals   || 0,
+    wonCount:        exec.kpi.winDeals     || 0,
+    lostCount:       exec.kpi.lostDeals    || 0,
+    waitingCount:    exec.kpi.waiting      || 0,
+    winRate:         exec.kpi.winRate      || 0,
+    wonValue:        exec.kpi.winRevenue   || 0,
+    lostValue:       exec.kpi.lostRevenue  || 0,
+    waitingValue:    exec.kpi.pipeline     || 0,
+    avgWinDeal:      exec.kpi.avgWinDeal   || 0,
+    bestMonth:       exec.kpi.bestMonth    || "",
+    topSalesperson:  exec.kpi.topSalesperson || "",
+    // Monthly
+    monthly:         exec.monthly,
+    // Aggregated
+    salespersons:    salespersons,
+    topClients:      topClients,
+    departments:     departments,
+    pipelineRows:    pipelineRows,
+    pipelineCount:   exec.kpi.waiting || pipelineRows.length,
+    pipelineValue:   exec.kpi.pipeline || 0
   };
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function detectCol(rows, candidates) {
-  if (!rows || rows.length === 0) return candidates[0];
-  var keys = Object.keys(rows[0]);
-  for (var c = 0; c < candidates.length; c++) {
-    for (var k = 0; k < keys.length; k++) {
-      if (keys[k].trim().toLowerCase() === candidates[c].toLowerCase()) return keys[k];
+// ── Parse Executive Summary ───────────────────────────────────────────────────
+// Layout (from screenshot):
+//   Row 1: merged title
+//   Row 2: source note
+//   Row 4: KPI headers  (Total Deals | Win Deals | Lost Deals | Waiting | Win Rate | Win Revenue THB | Pipeline THB | Avg Win Deal THB | Best Month | Top Salesperson)
+//   Row 5: KPI values
+//   Row 8: Monthly summary title
+//   Row 9: Monthly column headers (Month | Win Deals | Lost Deals | Waiting | Win Rate % | Win Revenue THB | Lost Revenue THB | Pipeline THB | vs Prior Month | Cumulative)
+//   Rows 10-13: Jan, Feb, Mar, Apr
+//   Row 14: TOTAL
+function parseExecutiveSummary(sheet) {
+  if (!sheet) return { kpi: {}, monthly: [] };
+  var values = sheet.getDataRange().getValues();
+  var kpi     = {};
+  var monthly = [];
+  var monthlyHeaders = null;
+  var MONTH_NAMES = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec","total"];
+
+  for (var i = 0; i < values.length; i++) {
+    var row   = values[i];
+    var cell0 = String(row[0] || "").trim().toLowerCase();
+
+    // KPI header row detection: first cell contains "total deals"
+    if (cell0 === "total deals" || cell0.indexOf("total deals") !== -1) {
+      if (i + 1 < values.length) {
+        var v = values[i + 1];
+        kpi.totalDeals     = toNum(v[0]);
+        kpi.winDeals       = toNum(v[1]);
+        kpi.lostDeals      = toNum(v[2]);
+        kpi.waiting        = toNum(v[3]);
+        kpi.winRate        = toNum(String(v[4]).replace("%",""));
+        kpi.winRevenue     = toNum(v[5]);
+        kpi.pipeline       = toNum(v[6]);
+        kpi.avgWinDeal     = toNum(v[7]);
+        kpi.bestMonth      = String(v[8] || "");
+        kpi.topSalesperson = String(v[9] || "");
+      }
+    }
+
+    // Monthly header row detection: first cell = "month"
+    if (cell0 === "month") {
+      monthlyHeaders = row.map(function(h){ return String(h).trim(); });
+    }
+
+    // Monthly data rows: first cell = month abbreviation or "TOTAL"
+    if (monthlyHeaders && MONTH_NAMES.indexOf(cell0) !== -1) {
+      var mRow = {};
+      monthlyHeaders.forEach(function(h, j){ mRow[h] = row[j]; });
+      monthly.push(mRow);
     }
   }
-  return candidates[0]; // fallback to first candidate
+
+  // Also try to extract lostRevenue from monthly TOTAL row
+  var totalRow = monthly.filter(function(r){ return String(r["Month"]||"").toLowerCase() === "total"; })[0];
+  if (totalRow) {
+    kpi.lostRevenue = toNum(totalRow["Lost Revenue (THB)"] || totalRow["Lost Revenue"] || 0);
+  }
+
+  return { kpi: kpi, monthly: monthly };
+}
+
+// ── Normalise Salesperson Performance tab ────────────────────────────────────
+// Tries common column name variants; debug.salesHeaders will show actual names
+function normaliseSale(rows) {
+  return rows.map(function(r) {
+    var keys = Object.keys(r);
+    return {
+      sale:      pick(r, ["Salesperson","Sale","Name","Rep","Agent","Employee","sales rep"]),
+      win:       toNum(pick(r, ["Win Revenue","Win Revenue (THB)","Win","Won Revenue","Won"])),
+      lost:      toNum(pick(r, ["Lost Revenue","Lost Revenue (THB)","Lost","Lose Revenue"])),
+      waiting:   toNum(pick(r, ["Pipeline","Pipeline (THB)","Waiting","Pipeline Value"])),
+      winDeals:  toNum(pick(r, ["Win Deals","Won Deals","Win Count","Wins"])),
+      lostDeals: toNum(pick(r, ["Lost Deals","Lost Count","Losses"])),
+      winRate:   toNum(String(pick(r, ["Win Rate","Win Rate %","Win%","Ach%"]) || "0").replace("%","")),
+      total:     toNum(pick(r, ["Total Revenue","Total","Grand Total","Total Value"]))
+    };
+  }).filter(function(s){ return s.sale && s.sale !== "—"; })
+    .sort(function(a,b){ return (b.win + b.waiting) - (a.win + a.waiting); });
+}
+
+// ── Normalise Top Clients tab ─────────────────────────────────────────────────
+function normaliseClient(rows) {
+  return rows.map(function(r) {
+    return {
+      client:  pick(r, ["Client Name","Client","Customer","Company","Account","Name"]),
+      win:     toNum(pick(r, ["Win Revenue","Win Revenue (THB)","Win","Won","Won Revenue"])),
+      lost:    toNum(pick(r, ["Lost Revenue","Lost Revenue (THB)","Lost"])),
+      waiting: toNum(pick(r, ["Pipeline","Pipeline (THB)","Waiting"])),
+      total:   toNum(pick(r, ["Total Revenue","Total","Grand Total","Total Value","Volume"]))
+    };
+  }).filter(function(c){ return c.client && c.client !== "—"; })
+    .sort(function(a,b){ return b.total - a.total; })
+    .slice(0, 10);
+}
+
+// ── Normalise Department Performance tab ─────────────────────────────────────
+function normaliseDept(rows) {
+  return rows.map(function(r) {
+    return {
+      dept:    pick(r, ["Department","Dep Responsibility","Dept","Division","Team","Unit"]),
+      win:     toNum(pick(r, ["Win Revenue","Win Revenue (THB)","Win","Won"])),
+      lost:    toNum(pick(r, ["Lost Revenue","Lost Revenue (THB)","Lost"])),
+      waiting: toNum(pick(r, ["Pipeline","Pipeline (THB)","Waiting"])),
+      total:   toNum(pick(r, ["Total Revenue","Total","Grand Total","Total Value"]))
+    };
+  }).filter(function(d){ return d.dept && d.dept !== "—"; })
+    .sort(function(a,b){ return b.total - a.total; });
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function pick(obj, candidates) {
+  if (!obj) return "—";
+  var keys = Object.keys(obj);
+  for (var c = 0; c < candidates.length; c++) {
+    for (var k = 0; k < keys.length; k++) {
+      if (keys[k].trim().toLowerCase() === candidates[c].toLowerCase()) {
+        var v = obj[keys[k]];
+        return (v !== null && v !== undefined && v !== "") ? v : "—";
+      }
+    }
+  }
+  return "—";
 }
 
 function findLargestSheet(ss) {
   var sheets = ss.getSheets(), largest = sheets[0], maxRows = 0;
-  sheets.forEach(function(s) {
+  sheets.forEach(function(s){
     var r = s.getLastRow();
-    if (r > maxRows) { maxRows = r; largest = s; }
+    if (r > maxRows){ maxRows = r; largest = s; }
   });
   return largest;
 }
@@ -197,21 +242,7 @@ function sheetToObjects(sheet) {
 }
 
 function toNum(v) {
-  if (v === null || v === undefined || v === "") return 0;
-  var n = parseFloat(String(v).replace(/[,฿\s]/g, ""));
+  if (v === null || v === undefined || v === "" || v === "—") return 0;
+  var n = parseFloat(String(v).replace(/[,฿%\s]/g,""));
   return isNaN(n) ? 0 : n;
-}
-
-function sumField(rows, fieldCandidates) {
-  var total = 0;
-  rows.forEach(function(r) {
-    for (var k = 0; k < fieldCandidates.length; k++) {
-      var v = r[fieldCandidates[k]];
-      if (v !== undefined && v !== null && v !== "") {
-        var n = parseFloat(String(v).replace(/[,฿\s]/g, ""));
-        if (!isNaN(n)) { total += n; break; }
-      }
-    }
-  });
-  return total;
 }
