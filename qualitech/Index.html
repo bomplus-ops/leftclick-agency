@@ -258,12 +258,13 @@ var G_months = [];     // available months in data (lowercase, ordered)
 var MORD = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
 var MLBL = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-// Year-aware month helpers — month format: "Jan 2025", "Feb 2026" etc.
+// Year-aware month helpers — handles both "Jan 2025" and plain "Jan" formats
 function myi(s) {
   var p = String(s || "").trim().split(" ");
   var mo = MORD.indexOf((p[0] || "").toLowerCase());
-  var yr = parseInt(p[1]) || 0;
-  return (yr > 0 && mo >= 0) ? yr * 12 + mo : 0;
+  if (mo < 0) return 0;
+  var yr = parseInt(p[1]) || new Date().getFullYear();  // default to current year if no year
+  return yr * 12 + mo;
 }
 function sortMY(a, b) { return myi(a) - myi(b); }
 
@@ -281,17 +282,12 @@ function detectKeys(rows) {
     return null;
   }
   return {
-    // "Sale" is the exact column name in Raw Data (generator uses d.sale field → label "Sale")
-    sale:   f(["Sale","Salesperson","Sales Person","Rep","Agent","Employee"]),
-    // "Dept" is the exact column name in Raw Data
-    dept:   f(["Dept","Department","Dep Responsibility","Division","Team","Section","BU"]),
-    // "Client Name" is the exact column name in Raw Data
-    client: f(["Client Name","Client","Customer","Company","Account","Organisation","Organization"]),
-    // "Status" values are exactly: 'Win' | 'Lost' | 'Waiting'
+    sale:   f(["Sale","Salesperson","Sales Person","Sales Officer","Rep","Agent","Employee","Sales Rep"]),
+    dept:   f(["Dept","Department","แผนก","Dep Responsibility","Division","Team","Section","BU"]),
+    client: f(["Client Name","Client","Customer Name","Customer","Company","Account","Organisation","Organization"]),
     status: f(["Status","Deal Status","Result","Outcome","Stage"]),
-    // "Value (THB)" = formatted THB string e.g. "1,234,567" (use toNum() to parse)
-    value:  f(["Value (THB)","Value","Revenue (THB)","Amount (THB)","Deal Value (THB)","Revenue","Amount"]),
-    // "Month" = abbreviation e.g. "Jan", "Feb"
+    value:  f(["Value (THB)","Value","มูลค่างาน (THB)","Revenue (THB)","Amount (THB)","Deal Value (THB)","Revenue","Amount"]),
+    // "Month" = "Jan", "Feb" OR "Jan 2025" year-aware format
     month:  f(["Month","Month Name","Period","Close Month","Action Month","Sale Month"]),
     cat:    f(["Category","Cat","Type","Task Title","Title","Sub-category"])
   };
