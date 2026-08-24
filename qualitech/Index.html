@@ -29,11 +29,6 @@
     .state-overlay h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
     .error-box { background: rgba(232,69,69,.1); border: 1px solid rgba(232,69,69,.3); border-radius: var(--radius); padding: 16px 20px; color: var(--red); margin-bottom: 20px; font-size: 13px; white-space: pre-wrap; }
     /* DEBUG */
-    .debug-box { background: #0a0f1a; border: 1px solid var(--amber); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; }
-    .debug-box h4 { color: var(--amber); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
-    .debug-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .debug-item label { font-size: 10px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
-    .debug-item pre { font-size: 11px; color: var(--green); background: #0f1a0f; padding: 8px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 140px; overflow-y: auto; }
     /* KPIs */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid; border-radius: var(--radius); padding: 16px 18px; }
@@ -97,29 +92,6 @@
   <div id="errorBox" class="error-box" style="display:none"></div>
 
   <div id="dashContent" style="display:none">
-
-    <!-- DEBUG PANEL -->
-    <div class="debug-box" id="debugBox">
-      <h4>🔍 Debug — ยืนยันค่า KPI ถูกต้องก่อนลบ panel นี้</h4>
-      <div class="debug-grid">
-        <div class="debug-item">
-          <label>KPI จาก Executive Summary</label>
-          <pre id="dbKPI"></pre>
-        </div>
-        <div class="debug-item">
-          <label>Sheet Tabs</label>
-          <pre id="dbSheets"></pre>
-        </div>
-        <div class="debug-item">
-          <label>Salesperson Headers (ควรมี Salesperson, Win Revenue (THB), ...)</label>
-          <pre id="dbSaleHdr"></pre>
-        </div>
-        <div class="debug-item">
-          <label>Pipeline Headers / Dept Headers</label>
-          <pre id="dbOtherHdr"></pre>
-        </div>
-      </div>
-    </div>
 
     <!-- KPI SUMMARY -->
     <div class="section">
@@ -209,17 +181,6 @@ var GC = "rgba(46,51,84,.4)", TC = "#8b90b4";
 var LO = { labels: { color: TC, font: { size: 11 }, boxWidth: 12 } };
 function ttLabel(c) { return c.dataset.label + ": " + fmtNum(c.parsed.y || c.parsed.x || 0); }
 
-// ─── Debug ────────────────────────────────────────────────────────────────────
-function renderDebug(dbg) {
-  if (!dbg) return;
-  document.getElementById("dbKPI").textContent      = JSON.stringify(dbg.execKPI || {}, null, 2);
-  document.getElementById("dbSheets").textContent   = (dbg.sheetNames || []).join("\n");
-  document.getElementById("dbSaleHdr").textContent  = (dbg.salesHeaders || []).join(" | ");
-  document.getElementById("dbOtherHdr").textContent =
-    "Pipeline: " + (dbg.pipelineHeaders || []).join(", ") +
-    "\nDept: "   + (dbg.deptHeaders    || []).join(", ") +
-    "\nClients: " + (dbg.clientHeaders  || []).join(", ");
-}
 
 // ─── KPI Cards ───────────────────────────────────────────────────────────────
 function renderKPIs(s) {
@@ -452,7 +413,6 @@ function renderDashboard(data) {
   }
 
   var s = data.ssot || {};
-  renderDebug(s.debug);
   renderKPIs(s);
   renderMonthlyChart(s.monthly || []);
   renderSaleChart(s.salespersons || []);
