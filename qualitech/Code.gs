@@ -161,7 +161,7 @@ function normaliseSale(rows) {
   return rows.map(function(r) {
     var win  = toNum(pick(r, ["Win Revenue (THB)","Win Revenue","Won Revenue"]));
     var lost = toNum(pick(r, ["Lost Revenue (THB)","Lost Revenue","Lose Revenue"]));
-    var wr   = toNum(String(pick(r, ["Win Rate %","Win Rate","Win%","Ach%"]) || "0").replace("%",""));
+    var wrRaw = toNum(String(pick(r, ["Win Rate %","Win Rate","Win%","Ach%"]) || "0").replace("%",""));
     return {
       sale:      pick(r, ["Salesperson","Sale","Name","Rep","Agent","Employee"]),
       win:       win,
@@ -170,12 +170,14 @@ function normaliseSale(rows) {
       winDeals:  toNum(pick(r, ["Win","Win Deals","Won Deals","Win Count"])),
       lostDeals: toNum(pick(r, ["Lost","Lost Deals","Lost Count","Losses"])),
       waitDeals: toNum(pick(r, ["Waiting","Wait","Wait Deals"])),
-      winRate:   wr > 1 ? wr : wr * 100,  // normalise to 0–100
+      winRate:   wrRaw > 1 ? wrRaw : wrRaw * 100,  // stored as 0–1 decimal, normalise to 0–100
       avgWin:    toNum(pick(r, ["Avg Win Deal (THB)","Avg Win Deal","Avg Win"])),
       total:     toNum(pick(r, ["Total Deals","Total Deals ","Total"]))
     };
-  }).filter(function(s){ return s.sale && s.sale !== "—"; })
-    .sort(function(a,b){ return b.win - a.win; });
+  }).filter(function(s){
+    // Exclude blank rows, placeholder "—", and the aggregate TOTAL row
+    return s.sale && s.sale !== "—" && String(s.sale).toUpperCase() !== "TOTAL";
+  }).sort(function(a,b){ return b.win - a.win; });
 }
 
 // ── Normalise Top Clients tab ─────────────────────────────────────────────────
@@ -211,8 +213,9 @@ function normaliseDept(rows) {
       waiting: toNum(pick(r, ["Pipeline (THB)","Pipeline","Waiting"])),
       total:   total
     };
-  }).filter(function(d){ return d.dept && d.dept !== "—"; })
-    .sort(function(a,b){ return b.total - a.total; });
+  }).filter(function(d){
+    return d.dept && d.dept !== "—" && String(d.dept).toUpperCase() !== "TOTAL";
+  }).sort(function(a,b){ return b.total - a.total; });
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
