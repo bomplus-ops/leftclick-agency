@@ -35,7 +35,7 @@
     .debug-item label { font-size: 10px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
     .debug-item pre { font-size: 12px; color: var(--green); background: #0f1a0f; padding: 8px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 120px; overflow-y: auto; }
     /* KPIs */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 14px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid; border-radius: var(--radius); padding: 16px 18px; }
     .kpi-card.blue   { border-top-color: var(--blue);   }
     .kpi-card.amber  { border-top-color: var(--amber);  }
@@ -58,25 +58,19 @@
     .data-table tr:hover td { background: rgba(79,142,247,.04); }
     .right { text-align: right; }
     .num   { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .bs { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; letter-spacing: .04em; white-space: nowrap; }
-    .bs-bidding   { background: rgba(79,142,247,.15);  color: var(--blue);   }
-    .bs-waiting   { background: rgba(245,166,35,.15);  color: var(--amber);  }
-    .bs-win       { background: rgba(52,199,123,.15);  color: var(--green);  }
-    .bs-lost      { background: rgba(232,69,69,.15);   color: var(--red);    }
-    .bs-budgetary { background: rgba(167,139,250,.15); color: var(--purple); }
-    .bs-backlog   { background: rgba(107,114,128,.15); color: var(--gray);   }
-    .bs-other     { background: rgba(139,144,180,.1);  color: var(--muted);  }
     .chart-wrap   { position: relative; height: 300px; }
-    .chart-wrap-h { position: relative; height: 340px; }
+    .chart-wrap-h { position: relative; height: 360px; }
     .pipeline-scroll { max-height: 460px; overflow-y: auto; }
     .footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 32px; }
+    .win-rate-bar { height: 6px; border-radius: 3px; background: var(--surface2); margin-top: 4px; }
+    .win-rate-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width .4s; }
   </style>
 </head>
 <body>
 <div class="header">
   <div class="header-left">
     <div class="logo">Quali<span>tech</span></div>
-    <div class="hbadge">Sales Dashboard</div>
+    <div class="hbadge">Sales Dashboard 2026</div>
   </div>
   <div class="header-meta" id="fetchedAt">Loading…</div>
 </div>
@@ -90,46 +84,48 @@
 
   <div id="dashContent" style="display:none">
 
-    <!-- DEBUG PANEL (remove after confirming data is correct) -->
+    <!-- DEBUG PANEL — ลบทิ้งหลังยืนยันข้อมูลถูกต้อง -->
     <div class="debug-box" id="debugBox">
-      <h4>🔍 Debug Info — ลบทิ้งหลังยืนยันข้อมูลถูกต้อง</h4>
+      <h4>🔍 Debug Info — ยืนยันข้อมูลจาก Executive Summary</h4>
       <div class="debug-grid">
         <div class="debug-item">
-          <label>Tab ที่อ่านอยู่ (rawSheetUsed)</label>
-          <pre id="dbSheet"></pre>
+          <label>KPI จาก Executive Summary (execKPI)</label>
+          <pre id="dbKPI"></pre>
         </div>
         <div class="debug-item">
-          <label>Column ที่ detect ได้</label>
-          <pre id="dbCols"></pre>
+          <label>Sheet Tabs พบทั้งหมด</label>
+          <pre id="dbSheets"></pre>
         </div>
         <div class="debug-item">
-          <label>ค่า Status ที่พบในข้อมูล</label>
-          <pre id="dbStatus"></pre>
+          <label>Salesperson Headers</label>
+          <pre id="dbSaleHdr"></pre>
         </div>
         <div class="debug-item">
-          <label>Headers (row 1) ของ sheet</label>
-          <pre id="dbHeaders"></pre>
+          <label>Pipeline Headers / Dept Headers</label>
+          <pre id="dbOtherHdr"></pre>
         </div>
       </div>
     </div>
 
     <div class="section">
-      <div class="section-title">Pipeline Summary</div>
+      <div class="section-title">KPI Summary — Jan–Apr 2026</div>
       <div class="kpi-grid" id="kpiGrid"></div>
     </div>
+
     <div class="section two-col">
       <div class="card">
         <div class="card-header">Volume by Sales Representative</div>
         <div class="card-body"><div class="chart-wrap"><canvas id="saleChart"></canvas></div></div>
       </div>
       <div class="card">
-        <div class="card-header">Top 10 Client by Volume</div>
+        <div class="card-header">Top 10 Clients by Volume</div>
         <div class="card-body"><div class="chart-wrap-h"><canvas id="clientChart"></canvas></div></div>
       </div>
     </div>
+
     <div class="section two-col">
       <div class="card">
-        <div class="card-header">Salesperson Detail</div>
+        <div class="card-header">Salesperson Performance</div>
         <div class="card-body" style="padding:0"><table class="data-table" id="saleTable"></table></div>
       </div>
       <div class="card">
@@ -137,6 +133,7 @@
         <div class="card-body" style="padding:0"><table class="data-table" id="deptTable"></table></div>
       </div>
     </div>
+
     <div class="section">
       <div class="card">
         <div class="card-header">
@@ -148,52 +145,248 @@
     </div>
   </div>
 </div>
-<div class="footer">Qualitech Sales Dashboard &middot; Google Sheets &amp; Apps Script &middot; Refreshed on each load</div>
+<div class="footer">Qualitech Sales Dashboard &middot; Google Sheets &amp; Apps Script &middot; Data: V2 Qualitech_Sales_Report_2026_YTD_Jan_Apr29</div>
+
 <script>
-function fmt(n){n=parseFloat(n)||0;if(n===0)return"—";if(n>=1e6)return(n/1e6).toFixed(2)+"M";if(n>=1e3)return(n/1e3).toFixed(1)+"K";return n.toLocaleString();}
-function safeStr(v){if(v===null||v===undefined||v==="")return"—";if(v instanceof Date)return v.toLocaleDateString("th-TH");return String(v);}
-function statusBadge(v){var raw=String(v||"").trim(),key=raw.toLowerCase();var cls=key==="bidding"?"bidding":key==="waiting"?"waiting":(key==="win"||key==="won")?"win":(key==="lost"||key==="lose")?"lost":key==="budgetary"?"budgetary":key==="backlog"?"backlog":"other";return'<span class="bs bs-'+cls+'">'+(raw||"—")+"</span>";}
-var DS=[{label:"Bidding",key:"bidding",color:"rgba(79,142,247,.8)"},{label:"Waiting",key:"waiting",color:"rgba(245,166,35,.8)"},{label:"Win",key:"win",color:"rgba(52,199,123,.8)"},{label:"Lost",key:"lost",color:"rgba(232,69,69,.8)"}];
-var GC="rgba(46,51,84,.4)",TC="#8b90b4",LO={labels:{color:TC,font:{size:11},boxWidth:12}};
-var TL=function(c){return c.dataset.label+": "+fmt(c.parsed.y||c.parsed.x);};
+function fmt(n) {
+  n = parseFloat(n) || 0;
+  if (n === 0) return "—";
+  if (n >= 1e6) return "฿" + (n / 1e6).toFixed(2) + "M";
+  if (n >= 1e3) return "฿" + (n / 1e3).toFixed(1) + "K";
+  return "฿" + n.toLocaleString();
+}
+function fmtN(n) {
+  n = parseFloat(n) || 0;
+  if (n === 0) return "—";
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+  return n.toLocaleString();
+}
+function safeStr(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  if (v instanceof Date) return v.toLocaleDateString("th-TH");
+  return String(v);
+}
+
+var GC = "rgba(46,51,84,.4)", TC = "#8b90b4";
+var LO = { labels: { color: TC, font: { size: 11 }, boxWidth: 12 } };
+var TL = function(c) { return c.dataset.label + ": " + fmtN(c.parsed.y || c.parsed.x); };
+// Chart datasets for win/waiting/lost
+var DS = [
+  { label: "Win",     key: "win",     color: "rgba(52,199,123,.8)"  },
+  { label: "Waiting", key: "waiting", color: "rgba(245,166,35,.8)"  },
+  { label: "Lost",    key: "lost",    color: "rgba(232,69,69,.8)"   }
+];
 
 function renderDebug(dbg) {
   if (!dbg) return;
-  document.getElementById("dbSheet").textContent   = dbg.rawSheetUsed || "—";
-  document.getElementById("dbCols").textContent    = JSON.stringify(dbg.detectedCols, null, 2);
-  document.getElementById("dbStatus").textContent  = JSON.stringify(dbg.statusValues, null, 2);
-  document.getElementById("dbHeaders").textContent = (dbg.sampleHeaders || []).join("\n");
+  document.getElementById("dbKPI").textContent      = JSON.stringify(dbg.execKPI || {}, null, 2);
+  document.getElementById("dbSheets").textContent   = (dbg.sheetNames || []).join("\n");
+  document.getElementById("dbSaleHdr").textContent  = (dbg.salesHeaders || []).join("\n");
+  document.getElementById("dbOtherHdr").textContent =
+    "Pipeline:\n" + (dbg.pipelineHeaders || []).join(", ") +
+    "\n\nDept:\n" + (dbg.deptHeaders || []).join(", ") +
+    "\n\nClient:\n" + (dbg.clientHeaders || []).join(", ");
 }
 
-function renderKPIs(s){var g=document.getElementById("kpiGrid");var cards=[{label:"Record Count",value:(s.totalRecords||0).toLocaleString(),sub:"Total rows read from sheet",color:"gray"},{label:"Bidding",value:fmt(s.biddingValue),sub:(s.bidding||[]).length+" deals",color:"blue"},{label:"Waiting",value:fmt(s.waitingValue),sub:(s.waiting||[]).length+" deals",color:"amber"},{label:"Win",value:fmt(s.wonValue),sub:(s.won||[]).length+" deals",color:"green"},{label:"Lost",value:fmt(s.lostValue),sub:(s.lost||[]).length+" deals",color:"red"},{label:"Budgetary",value:fmt(s.budgetaryValue),sub:(s.budgetary||[]).length+" deals",color:"purple"}];g.innerHTML=cards.map(function(c){return'<div class="kpi-card '+c.color+'"><div class="kpi-label">'+c.label+'</div><div class="kpi-value">'+c.value+'</div><div class="kpi-sub">'+c.sub+"</div></div>";}).join("");}
-function renderSaleChart(p){if(!p||p.length===0)return;var d=p.slice(0,8);new Chart(document.getElementById("saleChart").getContext("2d"),{type:"bar",data:{labels:d.map(function(s){return s.sale;}),datasets:DS.map(function(ds){return{label:ds.label,data:d.map(function(s){return s[ds.key]||0;}),backgroundColor:ds.color,borderRadius:2};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LO,tooltip:{callbacks:{label:TL}}},scales:{x:{stacked:true,ticks:{color:TC,font:{size:10}},grid:{color:GC}},y:{stacked:true,ticks:{color:TC,callback:fmt},grid:{color:GC}}}}});}
-function renderClientChart(cl){if(!cl||cl.length===0)return;var d=cl.slice(0,10);new Chart(document.getElementById("clientChart").getContext("2d"),{type:"bar",data:{labels:d.map(function(c){return c.client.length>24?c.client.slice(0,24)+"…":c.client;}),datasets:DS.map(function(ds){return{label:ds.label,data:d.map(function(c){return c[ds.key]||0;}),backgroundColor:ds.color,borderRadius:2};})},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:LO,tooltip:{callbacks:{label:TL}}},scales:{y:{stacked:true,ticks:{color:TC,font:{size:10}},grid:{color:GC}},x:{stacked:true,ticks:{color:TC,callback:fmt},grid:{color:GC}}}}});}
-function renderSaleTable(p){var t=document.getElementById("saleTable");if(!p||p.length===0){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No data</td></tr>';return;}t.innerHTML='<thead><tr><th>Sale</th><th class="right">Bidding</th><th class="right">Waiting</th><th class="right">Win</th><th class="right">Lost</th></tr></thead><tbody>'+p.map(function(s){return"<tr><td>"+s.sale+'</td><td class="num" style="color:var(--blue)">'+fmt(s.bidding)+'</td><td class="num" style="color:var(--amber)">'+fmt(s.waiting)+'</td><td class="num" style="color:var(--green)">'+fmt(s.win)+'</td><td class="num" style="color:var(--red)">'+fmt(s.lost)+"</td></tr>";}).join("")+"</tbody>";}
-function renderDeptTable(d){var t=document.getElementById("deptTable");if(!d||d.length===0){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No data</td></tr>';return;}var gr=d.reduce(function(s,x){return s+x.total;},0);t.innerHTML='<thead><tr><th>Dept</th><th class="right">Total Value</th><th class="right">Share</th></tr></thead><tbody>'+d.map(function(x){var pct=gr>0?(x.total/gr*100).toFixed(1):"0.0";return"<tr><td>"+x.dept+'</td><td class="num">'+fmt(x.total)+'</td><td class="num">'+pct+"%</td></tr>";}).join("")+"</tbody>";}
-function renderPipelineTable(w){var t=document.getElementById("pipelineTable"),cnt=document.getElementById("pipelineCount");if(!w||w.length===0){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No waiting deals</td></tr>';return;}cnt.textContent=w.length+" deals";var cols=[{key:"Client Name",label:"Client",type:"str"},{key:"Task Title",label:"Task Title",type:"str"},{key:"Sale",label:"Sale",type:"str"},{key:"Value",label:"Value (฿)",type:"num"},{key:"Dep Responsibility",label:"Dept",type:"str"},{key:"Status",label:"Status",type:"status"},{key:"Action Date",label:"Action Date",type:"date"}];t.innerHTML='<thead><tr>'+cols.map(function(c){return"<th"+(c.type==="num"?' class="right"':"")+">"+c.label+"</th>";}).join("")+'</tr></thead><tbody>'+w.map(function(r){return"<tr>"+cols.map(function(c){var v=r[c.key];if(c.type==="num")return'<td class="num">฿'+((parseFloat(String(v||"0").replace(/,/g,""))||0).toLocaleString())+"</td>";if(c.type==="status")return"<td>"+statusBadge(v)+"</td>";if(c.type==="date")return"<td>"+(v instanceof Date?v.toLocaleDateString("th-TH"):safeStr(v))+"</td>";return"<td>"+safeStr(v)+"</td>";}).join("")+"</tr>";}).join("")+"</tbody>";}
+function renderKPIs(s) {
+  var g = document.getElementById("kpiGrid");
+  var wr = parseFloat(s.winRate) || 0;
+  var cards = [
+    { label: "Total Deals",    value: (s.totalRecords || 0).toLocaleString(), sub: "Jan–Apr 2026",                          color: "gray"   },
+    { label: "Win",            value: (s.wonCount     || 0).toLocaleString(), sub: fmt(s.wonValue) + " revenue",            color: "green"  },
+    { label: "Lost",           value: (s.lostCount    || 0).toLocaleString(), sub: fmt(s.lostValue || 0) + " lost revenue", color: "red"    },
+    { label: "Waiting",        value: (s.waitingCount || 0).toLocaleString(), sub: fmt(s.waitingValue) + " pipeline",       color: "amber"  },
+    { label: "Win Rate",       value: wr.toFixed(1) + "%",                    sub: "of closed deals",                       color: "blue"   },
+    { label: "Avg Win Deal",   value: fmt(s.avgWinDeal || 0),                 sub: s.topSalesperson ? "Top: " + s.topSalesperson : "per deal", color: "purple" }
+  ];
+  g.innerHTML = cards.map(function(c) {
+    var bar = c.label === "Win Rate"
+      ? '<div class="win-rate-bar"><div class="win-rate-fill" style="width:' + Math.min(wr, 100) + '%"></div></div>'
+      : "";
+    return '<div class="kpi-card ' + c.color + '">' +
+      '<div class="kpi-label">' + c.label + '</div>' +
+      '<div class="kpi-value">' + c.value + '</div>' +
+      '<div class="kpi-sub">'  + c.sub   + '</div>' +
+      bar + '</div>';
+  }).join("");
+}
 
-function renderDashboard(data){
-  document.getElementById("loadingState").style.display="none";
-  document.getElementById("dashContent").style.display="block";
-  if(data.fetchedAt)document.getElementById("fetchedAt").textContent="Updated: "+new Date(data.fetchedAt).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
-  if(data.error){var b=document.getElementById("errorBox");b.textContent="Warning: "+data.error;b.style.display="block";}
-  var s=data.ssot||{};
+function renderSaleChart(persons) {
+  if (!persons || persons.length === 0) return;
+  var d = persons.slice(0, 10);
+  new Chart(document.getElementById("saleChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: d.map(function(s) { return s.sale; }),
+      datasets: DS.map(function(ds) {
+        return { label: ds.label, data: d.map(function(s) { return s[ds.key] || 0; }), backgroundColor: ds.color, borderRadius: 2 };
+      })
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: LO, tooltip: { callbacks: { label: TL } } },
+      scales: {
+        x: { stacked: true, ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
+        y: { stacked: true, ticks: { color: TC, callback: fmtN },     grid: { color: GC } }
+      }
+    }
+  });
+}
+
+function renderClientChart(clients) {
+  if (!clients || clients.length === 0) return;
+  var d = clients.slice(0, 10);
+  new Chart(document.getElementById("clientChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: d.map(function(c) { return c.client && c.client.length > 26 ? c.client.slice(0, 26) + "…" : (c.client || "—"); }),
+      datasets: DS.map(function(ds) {
+        return { label: ds.label, data: d.map(function(c) { return c[ds.key] || 0; }), backgroundColor: ds.color, borderRadius: 2 };
+      })
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: LO, tooltip: { callbacks: { label: TL } } },
+      scales: {
+        y: { stacked: true, ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
+        x: { stacked: true, ticks: { color: TC, callback: fmtN },     grid: { color: GC } }
+      }
+    }
+  });
+}
+
+function renderSaleTable(persons) {
+  var t = document.getElementById("saleTable");
+  if (!persons || persons.length === 0) { t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No data</td></tr>'; return; }
+  t.innerHTML = '<thead><tr>' +
+    '<th>Salesperson</th><th class="right">Win ฿</th><th class="right">Waiting ฿</th>' +
+    '<th class="right">Lost ฿</th><th class="right">Deals W/L</th><th class="right">Win Rate</th>' +
+    '</tr></thead><tbody>' +
+    persons.map(function(s) {
+      var wr = parseFloat(s.winRate) || 0;
+      return "<tr>" +
+        "<td>" + safeStr(s.sale) + "</td>" +
+        '<td class="num" style="color:var(--green)">'  + fmtN(s.win)     + "</td>" +
+        '<td class="num" style="color:var(--amber)">'  + fmtN(s.waiting) + "</td>" +
+        '<td class="num" style="color:var(--red)">'    + fmtN(s.lost)    + "</td>" +
+        '<td class="num">' + (s.winDeals || 0) + "/" + (s.lostDeals || 0) + "</td>" +
+        '<td class="num" style="color:' + (wr >= 70 ? "var(--green)" : wr >= 50 ? "var(--amber)" : "var(--red)") + '">' +
+          wr.toFixed(1) + "%" + "</td>" +
+        "</tr>";
+    }).join("") + "</tbody>";
+}
+
+function renderDeptTable(depts) {
+  var t = document.getElementById("deptTable");
+  if (!depts || depts.length === 0) { t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No data</td></tr>'; return; }
+  var grand = depts.reduce(function(s, x) { return s + (x.win + x.waiting); }, 0);
+  t.innerHTML = '<thead><tr>' +
+    '<th>Department</th><th class="right">Win ฿</th><th class="right">Waiting ฿</th><th class="right">Lost ฿</th><th class="right">Share</th>' +
+    '</tr></thead><tbody>' +
+    depts.map(function(x) {
+      var pct = grand > 0 ? ((x.win + x.waiting) / grand * 100).toFixed(1) : "0.0";
+      return "<tr>" +
+        "<td>" + safeStr(x.dept) + "</td>" +
+        '<td class="num" style="color:var(--green)">' + fmtN(x.win)     + "</td>" +
+        '<td class="num" style="color:var(--amber)">' + fmtN(x.waiting) + "</td>" +
+        '<td class="num" style="color:var(--red)">'   + fmtN(x.lost)    + "</td>" +
+        '<td class="num">' + pct + "%" + "</td>" +
+        "</tr>";
+    }).join("") + "</tbody>";
+}
+
+function renderPipelineTable(rows) {
+  var t   = document.getElementById("pipelineTable");
+  var cnt = document.getElementById("pipelineCount");
+  if (!rows || rows.length === 0) {
+    t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No waiting deals</td></tr>';
+    cnt.textContent = "";
+    return;
+  }
+  cnt.textContent = rows.length + " deals";
+  // Use whatever columns exist — prefer known names but fall back gracefully
+  var sample = rows[0] || {};
+  var keys   = Object.keys(sample);
+  // Try to find common fields
+  function findKey(candidates) {
+    for (var i = 0; i < candidates.length; i++) {
+      for (var j = 0; j < keys.length; j++) {
+        if (keys[j].trim().toLowerCase() === candidates[i].toLowerCase()) return keys[j];
+      }
+    }
+    return null;
+  }
+  var clientKey = findKey(["Client Name","Client","Customer","Company","Account"]);
+  var saleKey   = findKey(["Sale","Salesperson","Rep","Agent","Name","Employee"]);
+  var valueKey  = findKey(["Value","Amount","Revenue","Deal Value","Pipeline (THB)","Win Revenue (THB)"]);
+  var deptKey   = findKey(["Dep Responsibility","Department","Dept","Division","Team"]);
+  var taskKey   = findKey(["Task Title","Title","Deal Name","Project","Description"]);
+  var dateKey   = findKey(["Action Date","Date","Updated","Status update Date"]);
+
+  var cols = [];
+  if (clientKey) cols.push({ key: clientKey, label: "Client",     type: "str" });
+  if (saleKey)   cols.push({ key: saleKey,   label: "Sale",       type: "str" });
+  if (taskKey)   cols.push({ key: taskKey,   label: "Task",       type: "str" });
+  if (valueKey)  cols.push({ key: valueKey,  label: "Value (฿)",  type: "num" });
+  if (deptKey)   cols.push({ key: deptKey,   label: "Dept",       type: "str" });
+  if (dateKey)   cols.push({ key: dateKey,   label: "Date",       type: "date" });
+  // If no known columns found, show first 5 raw keys
+  if (cols.length === 0) {
+    cols = keys.slice(0, 5).map(function(k) { return { key: k, label: k, type: "str" }; });
+  }
+
+  t.innerHTML = '<thead><tr>' +
+    cols.map(function(c) { return "<th" + (c.type === "num" ? ' class="right"' : "") + ">" + c.label + "</th>"; }).join("") +
+    '</tr></thead><tbody>' +
+    rows.map(function(r) {
+      return "<tr>" + cols.map(function(c) {
+        var v = r[c.key];
+        if (c.type === "num") return '<td class="num">฿' + ((parseFloat(String(v || "0").replace(/[,฿\s]/g, "")) || 0).toLocaleString()) + "</td>";
+        if (c.type === "date") return "<td>" + (v instanceof Date ? v.toLocaleDateString("th-TH") : safeStr(v)) + "</td>";
+        return "<td>" + safeStr(v) + "</td>";
+      }).join("") + "</tr>";
+    }).join("") + "</tbody>";
+}
+
+function renderDashboard(data) {
+  document.getElementById("loadingState").style.display = "none";
+  document.getElementById("dashContent").style.display  = "block";
+  if (data.fetchedAt) {
+    document.getElementById("fetchedAt").textContent =
+      "Updated: " + new Date(data.fetchedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  }
+  if (data.error) {
+    var b = document.getElementById("errorBox");
+    b.textContent = "Warning: " + data.error;
+    b.style.display = "block";
+  }
+  var s = data.ssot || {};
   renderDebug(s.debug);
   renderKPIs(s);
-  renderSaleChart(s.salespersons||[]);
-  renderClientChart(s.topClients||[]);
-  renderSaleTable(s.salespersons||[]);
-  renderDeptTable(s.departments||[]);
-  renderPipelineTable(s.pipelineRows||s.waiting||[]);
+  renderSaleChart(s.salespersons || []);
+  renderClientChart(s.topClients || []);
+  renderSaleTable(s.salespersons || []);
+  renderDeptTable(s.departments || []);
+  renderPipelineTable(s.pipelineRows || []);
+  document.getElementById("pipelineCount").textContent =
+    (s.pipelineCount || (s.pipelineRows || []).length) + " deals · ฿" +
+    ((s.pipelineValue || s.waitingValue || 0) / 1e6).toFixed(2) + "M";
 }
-function showError(err){
-  document.getElementById("loadingState").style.display="none";
-  var b=document.getElementById("errorBox");
-  b.textContent="Error: "+(err.message||String(err));
-  b.style.display="block";
-  document.getElementById("dashContent").style.display="block";
+
+function showError(err) {
+  document.getElementById("loadingState").style.display = "none";
+  var b = document.getElementById("errorBox");
+  b.textContent = "Error: " + (err.message || String(err));
+  b.style.display = "block";
+  document.getElementById("dashContent").style.display = "block";
 }
-google.script.run.withSuccessHandler(renderDashboard).withFailureHandler(showError).getSalesDashboardData();
+
+google.script.run
+  .withSuccessHandler(renderDashboard)
+  .withFailureHandler(showError)
+  .getSalesDashboardData();
 </script>
 </body>
 </html>
