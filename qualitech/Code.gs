@@ -34,7 +34,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Pre-aggregated report (Executive Summary, Salesperson Performance, etc.)
-var SSOT_ID = "1aDvDAPCGVkhYw8ZA44fIfwP662phHUz4a3s-pAviX0g";
+var SSOT_ID = "1CFNtkn8aXCnlONBou3ecFxiwuR0r9LHuoNqRDA_jXR4";
 
 // Source-of-truth: RFQ-Job Process Record — Quotation tab
 // Used for live raw rows in the filter bar (always up-to-date)
@@ -285,24 +285,25 @@ function fetchRawFromSource() {
     if (values.length < 2) return [];
 
     var currentYear = new Date().getFullYear();
+    var allowedYears = [currentYear - 1, currentYear];  // e.g. [2025, 2026]
     var rows = [];
 
     for (var i = 1; i < values.length; i++) {
       var r = values[i];
 
-      // Year filter — keep current year only
+      // Year filter — keep last 2 years
       var yr = parseInt(r[31]);
-      if (yr !== currentYear) continue;
+      if (allowedYears.indexOf(yr) === -1) continue;
 
       // Status filter — skip Cancelled; keep Win / Lost / Waiting
       var status = String(r[19] || "").trim();
       if (status !== "Win" && status !== "Lost" && status !== "Waiting") continue;
 
-      // Derive month abbreviation from date
+      // Derive "Jan 2025" style month from date
       var month = "";
       var d = r[8];
       if (d instanceof Date && !isNaN(d)) {
-        month = MONTH_ABBR[d.getMonth()];
+        month = MONTH_ABBR[d.getMonth()] + " " + d.getFullYear();
       }
 
       // Value — could be a number or string like "Unit rate"

@@ -258,6 +258,15 @@ var G_months = [];     // available months in data (lowercase, ordered)
 var MORD = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
 var MLBL = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
+// Year-aware month helpers — month format: "Jan 2025", "Feb 2026" etc.
+function myi(s) {
+  var p = String(s || "").trim().split(" ");
+  var mo = MORD.indexOf((p[0] || "").toLowerCase());
+  var yr = parseInt(p[1]) || 0;
+  return (yr > 0 && mo >= 0) ? yr * 12 + mo : 0;
+}
+function sortMY(a, b) { return myi(a) - myi(b); }
+
 // ─── Raw key detection ────────────────────────────────────────────────────────
 // Raw Data tab columns (Report Generator v2.0 exact names):
 //   Action Date | Month | Week | Sale | Client Name | Value (raw) | Value (THB) |
@@ -334,10 +343,10 @@ function aggregateFromRaw(rows) {
   var mMap = {};
   rows.forEach(function(r) {
     var mRaw = String(gv(r, K.month) || "").trim();
-    var mi   = MORD.indexOf(mRaw.toLowerCase().slice(0, 3));
-    if (mi < 0) return;
-    var mKey = MLBL[mi];
-    if (!mMap[mKey]) mMap[mKey] = { mi: mi, wi: 0, li: 0, wt: 0, wv: 0, lv: 0, pv: 0 };
+    var mIdx = myi(mRaw);
+    if (mIdx <= 0) return;
+    var mKey = mRaw;
+    if (!mMap[mKey]) mMap[mKey] = { mi: mIdx, wi: 0, li: 0, wt: 0, wv: 0, lv: 0, pv: 0 };
     var st = normStatus(gv(r, K.status));
     var v  = tn(gv(r, K.value));
     if      (st === "win")     { mMap[mKey].wi++; mMap[mKey].wv += v; }
@@ -433,15 +442,15 @@ function initFilters(rawRows) {
   // Discover months
   var mSeen = {};
   rawRows.forEach(function(r) {
-    var m = String(gv(r, G_rawK.month) || "").trim().toLowerCase().slice(0, 3);
-    if (MORD.indexOf(m) !== -1) mSeen[m] = true;
+    var m = String(gv(r, G_rawK.month) || "").trim();
+    if (myi(m) > 0) mSeen[m] = true;
   });
-  G_months = MORD.filter(function(m) { return mSeen[m]; });
+  G_months = Object.keys(mSeen).sort(sortMY);
 
   var fFrom = document.getElementById("fFrom");
   var fTo   = document.getElementById("fTo");
   var opts  = G_months.map(function(m) {
-    return '<option value="' + m + '">' + MLBL[MORD.indexOf(m)] + '</option>';
+    return '<option value="' + m + '">' + m + '</option>';
   }).join("");
   fFrom.innerHTML = opts;
   fTo.innerHTML   = opts;
@@ -503,8 +512,8 @@ function filterAndRender() {
   var dept   = document.getElementById("fDept").value;
   var client = document.getElementById("fClient").value.trim().toLowerCase();
 
-  var fromIdx = MORD.indexOf(fromM);
-  var toIdx   = MORD.indexOf(toM);
+  var fromIdx = myi(fromM);
+  var toIdx   = myi(toM);
   var isFullRange = (fromM === G_months[0] && toM === G_months[G_months.length - 1]);
   var isFiltered  = !isFullRange || sale !== "__all__" || dept !== "__all__" || client;
 
@@ -517,11 +526,11 @@ function filterAndRender() {
   }
 
   var filtered = G_raw.filter(function(r) {
-    var mRaw = String(gv(r, G_rawK.month) || "").trim().toLowerCase().slice(0, 3);
-    var mIdx = MORD.indexOf(mRaw);
-    if (mIdx >= 0) {
-      if (fromIdx >= 0 && mIdx < fromIdx) return false;
-      if (toIdx   >= 0 && mIdx > toIdx)   return false;
+    var mRaw = String(gv(r, G_rawK.month) || "").trim();
+    var mIdx = myi(mRaw);
+    if (mIdx > 0) {
+      if (fromIdx > 0 && mIdx < fromIdx) return false;
+      if (toIdx   > 0 && mIdx > toIdx)   return false;
     }
     if (sale !== "__all__" && String(gv(r, G_rawK.sale) || "").trim() !== sale) return false;
     if (dept !== "__all__" && String(gv(r, G_rawK.dept) || "").trim() !== dept) return false;
@@ -539,16 +548,16 @@ function filterAndRender() {
 }
 
 function updateTitles(fromM, toM, sale, dept, isFiltered) {
-  var fromLbl = MLBL[MORD.indexOf(fromM)] || fromM;
-  var toLbl   = MLBL[MORD.indexOf(toM)]   || toM;
+  var fromLbl = fromM || "";
+  var toLbl   = toM   || "";
   var range   = (fromM === toM) ? fromLbl : (fromLbl + "–" + toLbl);
-  var parts   = [range + " 2026"];
+  var parts   = [range];
   if (isFiltered) {
     if (sale !== "__all__") parts.push(sale.split(" ")[0]);
     if (dept !== "__all__") parts.push(dept);
   }
   document.getElementById("kpiTitle").textContent = "KPI Summary — " + parts.join(" · ");
-  document.getElementById("monthlyChartTitle").textContent = "Monthly Revenue Trend — " + range + " 2026";
+  document.getElementById("monthlyChartTitle").textContent = "Monthly Revenue Trend — " + range;
 }
 
 // ─── KPI Cards ────────────────────────────────────────────────────────────────
