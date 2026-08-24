@@ -776,11 +776,19 @@ function renderDashboard(data) {
   }
 
   var s    = data.ssot || {};
-  G_ssot   = s;
   G_raw    = s.rawRows || [];
   G_rawK   = detectKeys(G_raw);
 
-  renderAll(s);
+  // If the pre-aggregated tabs (Executive Summary, etc.) are missing/empty
+  // but raw rows are present, derive everything from raw so KPIs are not zero.
+  var hasAggregates = (s.wonCount || 0) + (s.lostCount || 0) + (s.waitingCount || 0) > 0;
+  if (!hasAggregates && G_raw.length && G_rawK) {
+    G_ssot = aggregateFromRaw(G_raw);
+  } else {
+    G_ssot = s;
+  }
+
+  renderAll(G_ssot);
   initFilters(G_raw);
 }
 

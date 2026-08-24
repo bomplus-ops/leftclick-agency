@@ -65,14 +65,18 @@ function fetchAllTabs(id) {
   var deptTab    = ss.getSheetByName("Department Performance");
   var clientTab  = ss.getSheetByName("Top Clients");
   var pipeTab    = ss.getSheetByName("Pipeline (Waiting)");
-  // "Summary Weekly Sales" = 2025+2026 raw records; fall back to "Raw Data" tab
-  var rawTab  = ss.getSheetByName("Summary Weekly Sales") || ss.getSheetByName("Raw Data");
+  // "Summary Weekly Sales" (with or without trailing space) = 2025+2026 raw records
+  var rawTab  = findSheetLoose(ss, ["Summary Weekly Sales","Raw Data"]);
 
   var salesRows    = salesTab ? sheetToObjects(salesTab)   : [];
   var deptRows     = deptTab  ? sheetToObjects(deptTab)    : [];
   var clientRows   = clientTab ? sheetToObjects(clientTab) : [];
   var pipelineRows = pipeTab  ? sheetToObjects(pipeTab)    : [];
   var rawRows      = rawTab   ? sheetToObjects(rawTab)     : [];
+
+  // Enhance raw rows: derive "Jan 2025" style Month from Action Date so
+  // the frontend can filter across years
+  rawRows = enrichMonthWithYear(rawRows);
 
   // 3. Normalise using exact column names from Report Generator v2.0
   var salespersons = normaliseSale(salesRows);
@@ -278,6 +282,45 @@ function pick(obj, candidates) {
     }
   }
   return "—";
+}
+
+// Case-insensitive sheet lookup that tolerates trailing/leading spaces in the tab name
+function findSheetLoose(ss, candidates) {
+  var sheets = ss.getSheets();
+  for (var c = 0; c < candidates.length; c++) {
+    var want = String(candidates[c]).trim().toLowerCase();
+    for (var i = 0; i < sheets.length; i++) {
+      if (String(sheets[i].getName()).trim().toLowerCase() === want) return sheets[i];
+    }
+  }
+  return null;
+}
+
+// Attach year to the Month field ("Jan" → "Jan 2025") using the Action Date column,
+// so the frontend can sort and filter across multiple years.
+function enrichMonthWithYear(rows) {
+  if (!rows || !rows.length) return rows;
+  var keys = Object.keys(rows[0]);
+  function findK(cands) {
+    for (var c = 0; c < cands.length; c++)
+      for (var k = 0; k < keys.length; k++)
+        if (keys[k].trim().toLowerCase() === cands[c].toLowerCase()) return keys[k];
+    return null;
+  }
+  var monthKey = findK(["Month","Month Name","Period"]);
+  var dateKey  = findK(["Action Date","Status update Date","Submit Qutation Date","Date"]);
+  if (!monthKey || !dateKey) return rows;
+
+  return rows.map(function(r) {
+    var m = String(r[monthKey] || "").trim();
+    if (!m) return r;
+    if (/\s\d{4}$/.test(m)) return r;  // already has year
+    var d = r[dateKey];
+    if (d instanceof Date && !isNaN(d)) {
+      r[monthKey] = MONTH_ABBR[d.getMonth()] + " " + d.getFullYear();
+    }
+    return r;
+  });
 }
 
 // Reads a sheet, skipping title/empty rows to find the real header row.
