@@ -4,103 +4,214 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Qualitech Sales Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1117; --surface: #1a1d27; --surface2: #21253a;
-      --border: #2e3354; --text: #e8eaf6; --muted: #8b90b4;
-      --blue: #4f8ef7; --green: #34c77b; --amber: #f5a623;
-      --red: #e84545; --purple: #a78bfa; --gray: #6b7280; --radius: 8px;
+      /* Qualitech brand palette — light theme */
+      --bg: #f4f5f8;
+      --surface: #ffffff;
+      --surface2: #f9fafb;
+      --border: #e5e7eb;
+      --border-strong: #d1d5db;
+      --text: #111827;
+      --text2: #374151;
+      --muted: #6b7280;
+      --red: #E31E24;
+      --red-dark: #b8181c;
+      --red-light: #fee2e2;
+      --green: #10b981;
+      --green-dark: #059669;
+      --green-light: #d1fae5;
+      --amber: #f59e0b;
+      --amber-light: #fef3c7;
+      --blue: #3b82f6;
+      --blue-light: #dbeafe;
+      --purple: #8b5cf6;
+      --gray: #6b7280;
+      --radius: 10px;
+      --shadow-sm: 0 1px 2px rgba(17,24,39,.04);
+      --shadow: 0 1px 3px rgba(17,24,39,.06), 0 1px 2px rgba(17,24,39,.04);
     }
-    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg); color: var(--text);
+      font-size: 14px; line-height: 1.5; min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* Header */
-    .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .header-left { display: flex; align-items: center; gap: 16px; }
-    .logo { font-size: 20px; font-weight: 700; color: #fff; }
-    .logo span { color: var(--blue); }
-    .hbadge { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 10px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-    .header-meta { font-size: 12px; color: var(--muted); }
+    /* ─── Header ─── */
+    .header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm);
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .logo-mark {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--red); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 20px; letter-spacing: -0.02em;
+      box-shadow: 0 2px 6px rgba(227,30,36,.25);
+    }
+    .logo-text {
+      font-size: 20px; font-weight: 700; color: var(--text);
+      letter-spacing: -0.02em; line-height: 1;
+    }
+    .logo-sub { font-size: 10px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 3px; }
+    .hbadge {
+      background: var(--red-light); border: 1px solid rgba(227,30,36,.2);
+      border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 600;
+      color: var(--red-dark); text-transform: uppercase; letter-spacing: .06em;
+      margin-left: 4px;
+    }
+    .header-meta { font-size: 12px; color: var(--muted); font-weight: 500; }
 
-    /* Filter bar */
-    .filter-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 28px; display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; position: sticky; top: 53px; z-index: 99; }
-    .filter-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding-bottom: 5px; white-space: nowrap; }
-    .fg { display: flex; flex-direction: column; gap: 3px; }
-    .fg label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    /* ─── Filter bar ─── */
+    .filter-bar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 12px 28px;
+      display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+      position: sticky; top: 63px; z-index: 99;
+    }
+    .filter-tag {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--muted); padding-bottom: 6px; white-space: nowrap;
+    }
+    .fg { display: flex; flex-direction: column; gap: 4px; }
+    .fg label {
+      font-size: 10px; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .06em; font-weight: 600;
+    }
     .f-sel, .f-inp {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
-      color: var(--text); padding: 5px 8px; font-size: 12px; font-family: inherit;
-      cursor: pointer; outline: none; min-width: 100px;
+      background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px;
+      color: var(--text); padding: 6px 10px; font-size: 12px; font-family: inherit;
+      cursor: pointer; outline: none; min-width: 110px; transition: border-color .15s, box-shadow .15s;
     }
-    .f-sel:focus, .f-inp:focus { border-color: var(--blue); }
-    .f-inp { cursor: text; width: 150px; }
-    .f-div { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
-    .f-sep { color: var(--muted); padding-bottom: 5px; }
+    .f-sel:hover, .f-inp:hover { border-color: var(--red); }
+    .f-sel:focus, .f-inp:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(227,30,36,.1); }
+    .f-inp { cursor: text; width: 160px; }
+    .f-div { width: 1px; height: 30px; background: var(--border); margin: 0 6px; }
+    .f-sep { color: var(--muted); padding-bottom: 6px; }
     .f-btn {
-      background: transparent; border: 1px solid var(--border); border-radius: 4px;
-      color: var(--muted); padding: 5px 14px; font-size: 12px; font-family: inherit;
-      cursor: pointer; white-space: nowrap; transition: border-color .15s, color .15s;
+      background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px;
+      color: var(--text2); padding: 6px 16px; font-size: 12px; font-weight: 600;
+      font-family: inherit; cursor: pointer; white-space: nowrap;
+      transition: all .15s;
     }
-    .f-btn:hover { border-color: var(--red); color: var(--red); }
-    .f-count { font-size: 11px; color: var(--muted); padding-bottom: 5px; margin-left: auto; white-space: nowrap; }
-    .f-count.on { color: var(--amber); font-weight: 600; }
-    .filter-bar.no-raw .f-sel, .filter-bar.no-raw .f-inp, .filter-bar.no-raw .f-btn { opacity: .4; pointer-events: none; }
+    .f-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+    .f-count { font-size: 11px; color: var(--muted); padding-bottom: 6px; margin-left: auto; white-space: nowrap; font-weight: 500; }
+    .f-count.on { color: var(--red); font-weight: 700; }
+    .filter-bar.no-raw .f-sel, .filter-bar.no-raw .f-inp, .filter-bar.no-raw .f-btn {
+      opacity: .4; pointer-events: none;
+    }
 
-    /* Main */
-    .main { padding: 24px 28px; max-width: 1440px; margin: 0 auto; }
-    .section { margin-bottom: 28px; }
-    .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+    /* ─── Main ─── */
+    .main { padding: 26px 28px; max-width: 1440px; margin: 0 auto; }
+    .section { margin-bottom: 26px; }
+    .section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title::before {
+      content: ""; display: inline-block; width: 3px; height: 12px;
+      background: var(--red); border-radius: 2px;
+    }
     .state-overlay { text-align: center; padding: 80px 20px; color: var(--muted); }
-    .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    .spinner {
+      width: 42px; height: 42px; border: 3px solid var(--border);
+      border-top-color: var(--red); border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 0 auto 16px;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .state-overlay h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
-    .error-box { background: rgba(232,69,69,.1); border: 1px solid rgba(232,69,69,.3); border-radius: var(--radius); padding: 16px 20px; color: var(--red); margin-bottom: 20px; font-size: 13px; white-space: pre-wrap; }
+    .state-overlay h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; font-weight: 600; }
+    .error-box {
+      background: var(--red-light); border: 1px solid rgba(227,30,36,.25);
+      border-radius: var(--radius); padding: 14px 18px; color: var(--red-dark);
+      margin-bottom: 20px; font-size: 13px; white-space: pre-wrap;
+    }
 
-    /* KPIs */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
-    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid; border-radius: var(--radius); padding: 16px 18px; }
-    .kpi-card.blue   { border-top-color: var(--blue);   }
+    /* ─── KPI cards ─── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-top: 3px solid; border-radius: var(--radius);
+      padding: 18px 20px; box-shadow: var(--shadow-sm);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .kpi-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .kpi-card.red    { border-top-color: var(--red);    }
     .kpi-card.amber  { border-top-color: var(--amber);  }
     .kpi-card.green  { border-top-color: var(--green);  }
-    .kpi-card.red    { border-top-color: var(--red);    }
+    .kpi-card.blue   { border-top-color: var(--blue);   }
     .kpi-card.purple { border-top-color: var(--purple); }
     .kpi-card.gray   { border-top-color: var(--gray);   }
-    .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-    .kpi-value { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: #fff; margin-bottom: 3px; }
-    .kpi-sub { font-size: 12px; color: var(--muted); }
-    .win-rate-bar { height: 5px; border-radius: 3px; background: var(--surface2); margin-top: 6px; }
-    .win-rate-fill { height: 100%; border-radius: 3px; background: var(--green); }
+    .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; font-weight: 600; }
+    .kpi-value { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin-bottom: 4px; line-height: 1.1; }
+    .kpi-sub { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .win-rate-bar { height: 5px; border-radius: 3px; background: var(--surface2); margin-top: 8px; overflow: hidden; }
+    .win-rate-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--green) 0%, var(--green-dark) 100%); transition: width .4s; }
 
-    /* Layout */
+    /* ─── Layout ─── */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 960px) { .two-col { grid-template-columns: 1fr; } }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .card-header { padding: 13px 18px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
-    .card-body { padding: 18px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+    }
+    .card-header {
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface2);
+    }
+    .card-body { padding: 18px 20px; }
 
-    /* Tables */
+    /* ─── Tables ─── */
     .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .data-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
-    .data-table td { padding: 9px 12px; border-bottom: 1px solid rgba(46,51,84,.4); vertical-align: middle; }
+    .data-table th {
+      text-align: left; padding: 10px 14px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+      background: var(--surface2);
+    }
+    .data-table td {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      vertical-align: middle; color: var(--text2);
+    }
     .data-table tr:last-child td { border-bottom: none; }
-    .data-table tr:hover td { background: rgba(79,142,247,.04); }
+    .data-table tbody tr:hover td { background: var(--surface2); }
     .right { text-align: right; }
-    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .bar-cell { display: flex; align-items: center; gap: 8px; }
-    .inline-bar { flex: 1; height: 4px; border-radius: 2px; background: var(--surface2); min-width: 40px; }
-    .inline-bar-fill { height: 100%; border-radius: 2px; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
+    .bar-cell { display: flex; align-items: center; gap: 10px; }
+    .inline-bar { flex: 1; height: 5px; border-radius: 3px; background: var(--border); min-width: 40px; overflow: hidden; }
+    .inline-bar-fill { height: 100%; border-radius: 3px; }
 
-    /* Charts */
-    .chart-wrap   { position: relative; height: 280px; }
+    /* ─── Charts ─── */
+    .chart-wrap    { position: relative; height: 280px; }
     .chart-wrap-lg { position: relative; height: 340px; }
-    .chart-wrap-xl { position: relative; height: 200px; }
+    .chart-wrap-xl { position: relative; height: 220px; }
     .pipeline-scroll { max-height: 500px; overflow-y: auto; }
-    .footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 32px; }
-    .wr { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 11px; font-weight: 700; }
-    .wr-hi { background: rgba(52,199,123,.15); color: var(--green); }
-    .wr-mid { background: rgba(245,166,35,.15); color: var(--amber); }
-    .wr-lo  { background: rgba(232,69,69,.15); color: var(--red); }
+    .pipeline-scroll::-webkit-scrollbar { width: 8px; }
+    .pipeline-scroll::-webkit-scrollbar-track { background: var(--surface2); }
+    .pipeline-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+    .footer {
+      text-align: center; padding: 24px; font-size: 11px; color: var(--muted);
+      border-top: 1px solid var(--border); margin-top: 32px; background: var(--surface);
+    }
+    .footer strong { color: var(--red); font-weight: 700; }
+
+    /* Win rate badges */
+    .wr { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .wr-hi  { background: var(--green-light); color: var(--green-dark); }
+    .wr-mid { background: var(--amber-light); color: #b45309; }
+    .wr-lo  { background: var(--red-light);   color: var(--red-dark); }
   </style>
 </head>
 <body>
@@ -108,8 +219,12 @@
 <!-- Header -->
 <div class="header">
   <div class="header-left">
-    <div class="logo">Quali<span>tech</span></div>
-    <div class="hbadge">Sales Dashboard 2026</div>
+    <div class="logo-mark">Q</div>
+    <div>
+      <div class="logo-text">Qualitech</div>
+      <div class="logo-sub">Public Company Limited</div>
+    </div>
+    <span class="hbadge">Sales Dashboard</span>
   </div>
   <div class="header-meta" id="fetchedAt">Loading…</div>
 </div>
@@ -117,35 +232,14 @@
 <!-- Filter Bar -->
 <div class="filter-bar no-raw" id="filterBar">
   <span class="filter-tag">Filters</span>
-
-  <div class="fg">
-    <label>From Month</label>
-    <select class="f-sel" id="fFrom"></select>
-  </div>
+  <div class="fg"><label>From Month</label><select class="f-sel" id="fFrom"></select></div>
   <span class="f-sep">—</span>
-  <div class="fg">
-    <label>To Month</label>
-    <select class="f-sel" id="fTo"></select>
-  </div>
-
+  <div class="fg"><label>To Month</label><select class="f-sel" id="fTo"></select></div>
   <div class="f-div"></div>
-
-  <div class="fg">
-    <label>Salesperson</label>
-    <select class="f-sel" id="fSale"><option value="__all__">All Salespersons</option></select>
-  </div>
-  <div class="fg">
-    <label>Department</label>
-    <select class="f-sel" id="fDept"><option value="__all__">All Departments</option></select>
-  </div>
-
+  <div class="fg"><label>Salesperson</label><select class="f-sel" id="fSale"><option value="__all__">All Salespersons</option></select></div>
+  <div class="fg"><label>Department</label><select class="f-sel" id="fDept"><option value="__all__">All Departments</option></select></div>
   <div class="f-div"></div>
-
-  <div class="fg">
-    <label>Client</label>
-    <input type="text" class="f-inp" id="fClient" placeholder="Search client…">
-  </div>
-
+  <div class="fg"><label>Client</label><input type="text" class="f-inp" id="fClient" placeholder="Search client…"></div>
   <button class="f-btn" id="fReset">Reset</button>
   <span class="f-count" id="fCount"></span>
 </div>
@@ -158,21 +252,17 @@
     <p>Fetching from Google Sheets</p>
   </div>
   <div id="errorBox" class="error-box" style="display:none"></div>
-
   <div id="dashContent" style="display:none">
-
     <div class="section">
-      <div class="section-title" id="kpiTitle">KPI Summary — Jan–Apr 2026</div>
+      <div class="section-title" id="kpiTitle">KPI Summary</div>
       <div class="kpi-grid" id="kpiGrid"></div>
     </div>
-
     <div class="section">
       <div class="card">
         <div class="card-header" id="monthlyChartTitle">Monthly Revenue Trend</div>
         <div class="card-body"><div class="chart-wrap-xl"><canvas id="monthlyChart"></canvas></div></div>
       </div>
     </div>
-
     <div class="section two-col">
       <div class="card">
         <div class="card-header">Win Revenue by Salesperson</div>
@@ -183,7 +273,6 @@
         <div class="card-body"><div class="chart-wrap-lg"><canvas id="clientChart"></canvas></div></div>
       </div>
     </div>
-
     <div class="section two-col">
       <div class="card">
         <div class="card-header">Salesperson Performance</div>
@@ -194,24 +283,20 @@
         <div class="card-body" style="padding:0"><table class="data-table" id="deptTable"></table></div>
       </div>
     </div>
-
     <div class="section">
       <div class="card">
         <div class="card-header">
           <span>Pipeline — Waiting Deals</span>
-          <span id="pipelineCount" style="font-size:12px;color:var(--amber)"></span>
+          <span id="pipelineCount" style="font-size:12px;color:var(--amber);font-weight:600"></span>
         </div>
-        <div class="pipeline-scroll">
-          <table class="data-table" id="pipelineTable"></table>
-        </div>
+        <div class="pipeline-scroll"><table class="data-table" id="pipelineTable"></table></div>
       </div>
     </div>
-
   </div>
 </div>
 
 <div class="footer">
-  Qualitech Sales Dashboard &middot; Google Sheets &amp; Apps Script &middot; Data: V2 Qualitech_Sales_Report_2026_YTD_Jan_Apr29
+  <strong>Qualitech</strong> Public Company Limited &middot; Sales Dashboard &middot; Powered by Google Sheets &amp; Apps Script
 </div>
 
 <script>
@@ -219,14 +304,14 @@
 function fmtMoney(n) {
   n = parseFloat(n) || 0;
   if (n === 0) return "—";
-  if (n >= 1e6) return "฿" + (n / 1e6).toFixed(2) + "M";
-  if (n >= 1e3) return "฿" + (n / 1e3).toFixed(1) + "K";
+  if (n >= 1e6) return "฿" + (n/1e6).toFixed(2) + "M";
+  if (n >= 1e3) return "฿" + (n/1e3).toFixed(1) + "K";
   return "฿" + n.toLocaleString();
 }
 function fmtNum(n) {
   n = parseFloat(n) || 0;
-  if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
-  if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+  if (n >= 1e6) return (n/1e6).toFixed(2) + "M";
+  if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
   return n.toLocaleString();
 }
 function safeStr(v) {
@@ -239,9 +324,14 @@ function wrBadge(wr) {
   return '<span class="wr ' + cls + '">' + wr.toFixed(1) + "%</span>";
 }
 
-// ─── Chart helpers ────────────────────────────────────────────────────────────
-var GC = "rgba(46,51,84,.4)", TC = "#8b90b4";
-var LO = { labels: { color: TC, font: { size: 11 }, boxWidth: 12 } };
+// ─── Chart theme (light) ──────────────────────────────────────────────────────
+var GC = "rgba(17,24,39,.06)", TC = "#6b7280";
+var LO = { labels: { color: TC, font: { size: 11, weight: 500 }, boxWidth: 12, boxHeight: 12, padding: 12 } };
+var TT = {
+  backgroundColor: "rgba(17,24,39,.95)", titleColor: "#fff", bodyColor: "#e5e7eb",
+  padding: 10, cornerRadius: 6, borderColor: "rgba(255,255,255,.1)", borderWidth: 1,
+  callbacks: { label: function(c){ return c.dataset.label + ": " + fmtNum(c.parsed.y || c.parsed.x || 0); } }
+};
 function ttLabel(c) { return c.dataset.label + ": " + fmtNum(c.parsed.y || c.parsed.x || 0); }
 var _charts = {};
 function mkChart(id, cfg) {
@@ -249,29 +339,26 @@ function mkChart(id, cfg) {
   _charts[id] = new Chart(document.getElementById(id).getContext("2d"), cfg);
 }
 
-// ─── Global state ─────────────────────────────────────────────────────────────
-var G_ssot   = null;   // original pre-aggregated data
-var G_raw    = [];     // raw individual deal rows
-var G_rawK   = null;   // detected column keys
-var G_months = [];     // available months in data (lowercase, ordered)
+// Brand colors used in chart datasets
+var C_WIN = "#10b981", C_LOST = "#E31E24", C_WAIT = "#f59e0b";
+var C_WIN_BG  = "rgba(16,185,129,.85)";
+var C_LOST_BG = "rgba(227,30,36,.85)";
+var C_WAIT_BG = "rgba(245,158,11,.85)";
 
+// ─── State ────────────────────────────────────────────────────────────────────
+var G_ssot = null, G_raw = [], G_rawK = null, G_months = [];
 var MORD = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
 var MLBL = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-// Year-aware month helpers — handles both "Jan 2025" and plain "Jan" formats
 function myi(s) {
   var p = String(s || "").trim().split(" ");
   var mo = MORD.indexOf((p[0] || "").toLowerCase());
   if (mo < 0) return 0;
-  var yr = parseInt(p[1]) || new Date().getFullYear();  // default to current year if no year
+  var yr = parseInt(p[1]) || new Date().getFullYear();
   return yr * 12 + mo;
 }
 function sortMY(a, b) { return myi(a) - myi(b); }
 
-// ─── Raw key detection ────────────────────────────────────────────────────────
-// Raw Data tab columns (Report Generator v2.0 exact names):
-//   Action Date | Month | Week | Sale | Client Name | Value (raw) | Value (THB) |
-//   Status | Dept | Category | Task Title | Milestone % | Notes
 function detectKeys(rows) {
   if (!rows || !rows.length) return null;
   var ks = Object.keys(rows[0]);
@@ -287,20 +374,16 @@ function detectKeys(rows) {
     client: f(["Client Name","Client","Customer Name","Customer","Company","Account","Organisation","Organization"]),
     status: f(["Status","Deal Status","Result","Outcome","Stage"]),
     value:  f(["Value (THB)","Value","มูลค่างาน (THB)","Revenue (THB)","Amount (THB)","Deal Value (THB)","Revenue","Amount"]),
-    // "Month" = "Jan", "Feb" OR "Jan 2025" year-aware format
     month:  f(["Month","Month Name","Period","Close Month","Action Month","Sale Month"]),
     cat:    f(["Category","Cat","Type","Task Title","Title","Sub-category"])
   };
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 function normStatus(v) {
   var s = String(v || "").trim();
-  // Exact match first (Report Generator v2.0 writes exactly these strings)
   if (s === "Win")     return "win";
   if (s === "Lost")    return "lost";
   if (s === "Waiting") return "waiting";
-  // Fuzzy fallback
   var sl = s.toLowerCase();
   if (!sl || sl === "—" || sl === "-") return "unknown";
   if (sl.indexOf("win") !== -1 || sl.indexOf("won") !== -1) return "win";
@@ -319,485 +402,345 @@ function tn(v) {
   return isNaN(n) ? 0 : n;
 }
 
-// ─── Aggregate from raw rows ──────────────────────────────────────────────────
 function aggregateFromRaw(rows) {
   var K = G_rawK;
   if (!K) return G_ssot;
+  var wonR  = rows.filter(function(r) { return normStatus(gv(r,K.status)) === "win"; });
+  var lostR = rows.filter(function(r) { return normStatus(gv(r,K.status)) === "lost"; });
+  var waitR = rows.filter(function(r) { return normStatus(gv(r,K.status)) === "waiting"; });
+  var wonCount = wonR.length, lostCount = lostR.length, waitCount = waitR.length;
+  var wonVal  = wonR.reduce(function(s,r)  { return s + tn(gv(r,K.value)); }, 0);
+  var lostVal = lostR.reduce(function(s,r) { return s + tn(gv(r,K.value)); }, 0);
+  var waitVal = waitR.reduce(function(s,r) { return s + tn(gv(r,K.value)); }, 0);
+  var winRate = (wonCount+lostCount) > 0 ? wonCount/(wonCount+lostCount)*100 : 0;
+  var avgWin  = wonCount > 0 ? wonVal/wonCount : 0;
 
-  var wonR  = rows.filter(function(r) { return normStatus(gv(r, K.status)) === "win"; });
-  var lostR = rows.filter(function(r) { return normStatus(gv(r, K.status)) === "lost"; });
-  var waitR = rows.filter(function(r) { return normStatus(gv(r, K.status)) === "waiting"; });
-
-  var wonCount   = wonR.length, lostCount = lostR.length, waitCount = waitR.length;
-  var wonVal  = wonR.reduce(function(s, r)  { return s + tn(gv(r, K.value)); }, 0);
-  var lostVal = lostR.reduce(function(s, r) { return s + tn(gv(r, K.value)); }, 0);
-  var waitVal = waitR.reduce(function(s, r) { return s + tn(gv(r, K.value)); }, 0);
-  var winRate  = (wonCount + lostCount) > 0 ? wonCount / (wonCount + lostCount) * 100 : 0;
-  var avgWin   = wonCount > 0 ? wonVal / wonCount : 0;
-
-  // Monthly
   var mMap = {};
   rows.forEach(function(r) {
-    var mRaw = String(gv(r, K.month) || "").trim();
+    var mRaw = String(gv(r,K.month)||"").trim();
     var mIdx = myi(mRaw);
     if (mIdx <= 0) return;
-    var mKey = mRaw;
-    if (!mMap[mKey]) mMap[mKey] = { mi: mIdx, wi: 0, li: 0, wt: 0, wv: 0, lv: 0, pv: 0 };
-    var st = normStatus(gv(r, K.status));
-    var v  = tn(gv(r, K.value));
-    if      (st === "win")     { mMap[mKey].wi++; mMap[mKey].wv += v; }
-    else if (st === "lost")    { mMap[mKey].li++; mMap[mKey].lv += v; }
-    else if (st === "waiting") { mMap[mKey].wt++; mMap[mKey].pv += v; }
+    if (!mMap[mRaw]) mMap[mRaw] = { mi:mIdx, wi:0, li:0, wt:0, wv:0, lv:0, pv:0 };
+    var st = normStatus(gv(r,K.status)), v = tn(gv(r,K.value));
+    if      (st==="win")     { mMap[mRaw].wi++; mMap[mRaw].wv+=v; }
+    else if (st==="lost")    { mMap[mRaw].li++; mMap[mRaw].lv+=v; }
+    else if (st==="waiting") { mMap[mRaw].wt++; mMap[mRaw].pv+=v; }
   });
-  var monthly = Object.keys(mMap).sort(function(a, b) { return mMap[a].mi - mMap[b].mi; }).map(function(m) {
-    var d = mMap[m];
-    var wr = (d.wi + d.li) > 0 ? d.wi / (d.wi + d.li) * 100 : 0;
-    return {
-      "Month": m, "Win Deals": d.wi, "Lost Deals": d.li, "Waiting": d.wt,
-      "Win Rate %": wr,
-      "Win Revenue (THB)": d.wv, "Lost Revenue (THB)": d.lv, "Pipeline (THB)": d.pv
-    };
+  var monthly = Object.keys(mMap).sort(function(a,b){return mMap[a].mi-mMap[b].mi;}).map(function(m) {
+    var d=mMap[m], wr=(d.wi+d.li)>0?d.wi/(d.wi+d.li)*100:0;
+    return {"Month":m,"Win Deals":d.wi,"Lost Deals":d.li,"Waiting":d.wt,"Win Rate %":wr,
+            "Win Revenue (THB)":d.wv,"Lost Revenue (THB)":d.lv,"Pipeline (THB)":d.pv};
   });
 
-  // Salespersons
   var sMap = {};
   rows.forEach(function(r) {
-    var s = String(gv(r, K.sale) || "").trim();
-    if (!s || s === "—" || s.toUpperCase() === "TOTAL") return;
-    if (!sMap[s]) sMap[s] = { wi: 0, li: 0, wt: 0, wv: 0, lv: 0 };
-    var st = normStatus(gv(r, K.status));
-    var v  = tn(gv(r, K.value));
-    if      (st === "win")     { sMap[s].wi++; sMap[s].wv += v; }
-    else if (st === "lost")    { sMap[s].li++; sMap[s].lv += v; }
-    else if (st === "waiting") { sMap[s].wt++; }
+    var s = String(gv(r,K.sale)||"").trim();
+    if (!s||s==="—"||s.toUpperCase()==="TOTAL") return;
+    if (!sMap[s]) sMap[s]={wi:0,li:0,wt:0,wv:0,lv:0};
+    var st=normStatus(gv(r,K.status)), v=tn(gv(r,K.value));
+    if      (st==="win")     { sMap[s].wi++; sMap[s].wv+=v; }
+    else if (st==="lost")    { sMap[s].li++; sMap[s].lv+=v; }
+    else if (st==="waiting") { sMap[s].wt++; }
   });
   var salespersons = Object.keys(sMap).map(function(s) {
-    var d = sMap[s];
-    var wr = (d.wi + d.li) > 0 ? d.wi / (d.wi + d.li) * 100 : 0;
-    return { sale: s, win: d.wv, lost: d.lv, waiting: 0, winDeals: d.wi, lostDeals: d.li, waitDeals: d.wt, winRate: wr, total: d.wi + d.li + d.wt };
-  }).sort(function(a, b) { return b.win - a.win; });
+    var d=sMap[s], wr=(d.wi+d.li)>0?d.wi/(d.wi+d.li)*100:0;
+    return {sale:s,win:d.wv,lost:d.lv,waiting:0,winDeals:d.wi,lostDeals:d.li,waitDeals:d.wt,winRate:wr,total:d.wi+d.li+d.wt};
+  }).sort(function(a,b){return b.win-a.win;});
 
-  // Departments
   var dMap = {};
   rows.forEach(function(r) {
-    var d = String(gv(r, K.dept) || "").trim();
-    if (!d || d === "—" || d.toUpperCase() === "TOTAL") return;
-    if (!dMap[d]) dMap[d] = { wi: 0, li: 0, wv: 0, tv: 0 };
-    var st = normStatus(gv(r, K.status));
-    var v  = tn(gv(r, K.value));
-    dMap[d].tv += v;
-    if      (st === "win")  { dMap[d].wi++; dMap[d].wv += v; }
-    else if (st === "lost") { dMap[d].li++; }
+    var d = String(gv(r,K.dept)||"").trim();
+    if (!d||d==="—"||d.toUpperCase()==="TOTAL") return;
+    // Normalize legacy dept names
+    if (d === "PISB") d = "PIS-B";
+    if (d === "PISA") d = "PIS-A";
+    if (!dMap[d]) dMap[d]={wi:0,li:0,wv:0,tv:0};
+    var st=normStatus(gv(r,K.status)), v=tn(gv(r,K.value));
+    dMap[d].tv+=v;
+    if      (st==="win")  { dMap[d].wi++; dMap[d].wv+=v; }
+    else if (st==="lost") { dMap[d].li++; }
   });
   var departments = Object.keys(dMap).map(function(d) {
-    var e = dMap[d];
-    var wr = (e.wi + e.li) > 0 ? e.wi / (e.wi + e.li) * 100 : 0;
-    return { dept: d, win: e.wv, other: e.tv - e.wv, total: e.tv, winRate: wr, winDeals: e.wi, lostDeals: e.li };
-  }).sort(function(a, b) { return b.total - a.total; });
+    var e=dMap[d], wr=(e.wi+e.li)>0?e.wi/(e.wi+e.li)*100:0;
+    return {dept:d,win:e.wv,other:e.tv-e.wv,total:e.tv,winRate:wr,winDeals:e.wi,lostDeals:e.li};
+  }).sort(function(a,b){return b.total-a.total;});
 
-  // Top clients
   var cMap = {};
   rows.forEach(function(r) {
-    var c = String(gv(r, K.client) || "").trim();
-    if (!c || c === "—") return;
-    if (!cMap[c]) cMap[c] = { win: 0, lost: 0, wait: 0 };
-    var st = normStatus(gv(r, K.status));
-    var v  = tn(gv(r, K.value));
-    if      (st === "win")     cMap[c].win  += v;
-    else if (st === "lost")    cMap[c].lost += v;
-    else if (st === "waiting") cMap[c].wait += v;
+    var c = String(gv(r,K.client)||"").trim();
+    if (!c||c==="—") return;
+    if (!cMap[c]) cMap[c]={win:0,lost:0,wait:0};
+    var st=normStatus(gv(r,K.status)), v=tn(gv(r,K.value));
+    if      (st==="win")     cMap[c].win +=v;
+    else if (st==="lost")    cMap[c].lost+=v;
+    else if (st==="waiting") cMap[c].wait+=v;
   });
   var topClients = Object.keys(cMap).map(function(c) {
-    var e = cMap[c];
-    return { client: c, win: e.win, lost: e.lost, waiting: e.wait, total: e.win + e.lost + e.wait };
-  }).sort(function(a, b) { return b.win - a.win; }).slice(0, 10);
+    var e=cMap[c];
+    return {client:c,win:e.win,lost:e.lost,waiting:e.wait,total:e.win+e.lost+e.wait};
+  }).sort(function(a,b){return b.win-a.win;}).slice(0,10);
 
-  var topSale  = salespersons.length > 0 ? salespersons[0].sale : "";
-  var bestMObj = monthly.slice().sort(function(a, b) { return b["Win Revenue (THB)"] - a["Win Revenue (THB)"]; })[0];
-
+  var topSale  = salespersons.length>0 ? salespersons[0].sale : "";
+  var bestMObj = monthly.slice().sort(function(a,b){return b["Win Revenue (THB)"]-a["Win Revenue (THB)"];})[0];
   return {
-    totalRecords: rows.length, wonCount: wonCount, lostCount: lostCount, waitingCount: waitCount,
-    winRate: winRate, wonValue: wonVal, lostValue: lostVal, waitingValue: waitVal,
-    avgWinDeal: avgWin, bestMonth: bestMObj ? bestMObj["Month"] : "", topSalesperson: topSale,
-    monthly: monthly, salespersons: salespersons, topClients: topClients,
-    departments: departments, pipelineRows: waitR,
-    pipelineCount: waitCount, pipelineValue: waitVal
+    totalRecords:rows.length,wonCount:wonCount,lostCount:lostCount,waitingCount:waitCount,
+    winRate:winRate,wonValue:wonVal,lostValue:lostVal,waitingValue:waitVal,
+    avgWinDeal:avgWin,bestMonth:bestMObj?bestMObj["Month"]:"",topSalesperson:topSale,
+    monthly:monthly,salespersons:salespersons,topClients:topClients,
+    departments:departments,pipelineRows:waitR,pipelineCount:waitCount,pipelineValue:waitVal
   };
 }
 
-// ─── Filter UI init ───────────────────────────────────────────────────────────
 function initFilters(rawRows) {
   var bar = document.getElementById("filterBar");
-
-  if (!rawRows || !rawRows.length || !G_rawK) {
-    document.getElementById("fCount").textContent = "Raw Data tab unavailable — filtering disabled";
+  if (!rawRows||!rawRows.length||!G_rawK) {
+    document.getElementById("fCount").textContent = "Raw data unavailable — filtering disabled";
     return;
   }
   bar.classList.remove("no-raw");
-
-  // Discover months
   var mSeen = {};
   rawRows.forEach(function(r) {
-    var m = String(gv(r, G_rawK.month) || "").trim();
-    if (myi(m) > 0) mSeen[m] = true;
+    var m = String(gv(r,G_rawK.month)||"").trim();
+    if (myi(m)>0) mSeen[m]=true;
   });
   G_months = Object.keys(mSeen).sort(sortMY);
+  var fFrom=document.getElementById("fFrom"), fTo=document.getElementById("fTo");
+  var opts = G_months.map(function(m){return '<option value="'+m+'">'+m+'</option>';}).join("");
+  fFrom.innerHTML=opts; fTo.innerHTML=opts;
+  fTo.value = G_months[G_months.length-1];
 
-  var fFrom = document.getElementById("fFrom");
-  var fTo   = document.getElementById("fTo");
-  var opts  = G_months.map(function(m) {
-    return '<option value="' + m + '">' + m + '</option>';
-  }).join("");
-  fFrom.innerHTML = opts;
-  fTo.innerHTML   = opts;
-  fTo.value = G_months[G_months.length - 1];
+  var sSeen={};
+  rawRows.forEach(function(r){var s=String(gv(r,G_rawK.sale)||"").trim(); if(s&&s!=="—"&&s.toUpperCase()!=="TOTAL") sSeen[s]=true;});
+  document.getElementById("fSale").innerHTML='<option value="__all__">All Salespersons</option>'+
+    Object.keys(sSeen).sort().map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join("");
 
-  // Discover salespersons
-  var sSeen = {};
-  rawRows.forEach(function(r) {
-    var s = String(gv(r, G_rawK.sale) || "").trim();
-    if (s && s !== "—" && s.toUpperCase() !== "TOTAL") sSeen[s] = true;
+  var dSeen={};
+  rawRows.forEach(function(r){
+    var d=String(gv(r,G_rawK.dept)||"").trim();
+    if (d === "PISB") d = "PIS-B";
+    if (d === "PISA") d = "PIS-A";
+    if(d&&d!=="—"&&d.toUpperCase()!=="TOTAL") dSeen[d]=true;
   });
-  document.getElementById("fSale").innerHTML =
-    '<option value="__all__">All Salespersons</option>' +
-    Object.keys(sSeen).sort().map(function(s) {
-      return '<option value="' + s + '">' + s + '</option>';
-    }).join("");
+  document.getElementById("fDept").innerHTML='<option value="__all__">All Departments</option>'+
+    Object.keys(dSeen).sort().map(function(d){return '<option value="'+d+'">'+d+'</option>';}).join("");
 
-  // Discover departments
-  var dSeen = {};
-  rawRows.forEach(function(r) {
-    var d = String(gv(r, G_rawK.dept) || "").trim();
-    if (d && d !== "—" && d.toUpperCase() !== "TOTAL") dSeen[d] = true;
-  });
-  document.getElementById("fDept").innerHTML =
-    '<option value="__all__">All Departments</option>' +
-    Object.keys(dSeen).sort().map(function(d) {
-      return '<option value="' + d + '">' + d + '</option>';
-    }).join("");
-
-  document.getElementById("fCount").textContent = rawRows.length + " records";
-
-  // Events
-  fFrom.addEventListener("change", filterAndRender);
-  fTo.addEventListener("change",   filterAndRender);
-  document.getElementById("fSale").addEventListener("change", filterAndRender);
-  document.getElementById("fDept").addEventListener("change", filterAndRender);
-
+  document.getElementById("fCount").textContent = rawRows.length+" records";
+  fFrom.addEventListener("change",filterAndRender);
+  fTo.addEventListener("change",filterAndRender);
+  document.getElementById("fSale").addEventListener("change",filterAndRender);
+  document.getElementById("fDept").addEventListener("change",filterAndRender);
   var debounce;
-  document.getElementById("fClient").addEventListener("input", function() {
-    clearTimeout(debounce);
-    debounce = setTimeout(filterAndRender, 280);
-  });
-
-  document.getElementById("fReset").addEventListener("click", function() {
-    fFrom.value = G_months[0];
-    fTo.value   = G_months[G_months.length - 1];
-    document.getElementById("fSale").value   = "__all__";
-    document.getElementById("fDept").value   = "__all__";
-    document.getElementById("fClient").value = "";
+  document.getElementById("fClient").addEventListener("input",function(){clearTimeout(debounce);debounce=setTimeout(filterAndRender,280);});
+  document.getElementById("fReset").addEventListener("click",function(){
+    fFrom.value=G_months[0]; fTo.value=G_months[G_months.length-1];
+    document.getElementById("fSale").value="__all__";
+    document.getElementById("fDept").value="__all__";
+    document.getElementById("fClient").value="";
     filterAndRender();
   });
 }
 
-// ─── Apply filters & re-render ────────────────────────────────────────────────
 function filterAndRender() {
-  var fromM  = document.getElementById("fFrom").value;
-  var toM    = document.getElementById("fTo").value;
-  var sale   = document.getElementById("fSale").value;
-  var dept   = document.getElementById("fDept").value;
-  var client = document.getElementById("fClient").value.trim().toLowerCase();
-
-  var fromIdx = myi(fromM);
-  var toIdx   = myi(toM);
-  var isFullRange = (fromM === G_months[0] && toM === G_months[G_months.length - 1]);
-  var isFiltered  = !isFullRange || sale !== "__all__" || dept !== "__all__" || client;
-
-  if (!isFiltered || !G_raw.length) {
+  var fromM=document.getElementById("fFrom").value, toM=document.getElementById("fTo").value;
+  var sale=document.getElementById("fSale").value, dept=document.getElementById("fDept").value;
+  var client=document.getElementById("fClient").value.trim().toLowerCase();
+  var fromIdx=myi(fromM), toIdx=myi(toM);
+  var isFullRange=(fromM===G_months[0]&&toM===G_months[G_months.length-1]);
+  var isFiltered=!isFullRange||sale!=="__all__"||dept!=="__all__"||client;
+  if (!isFiltered||!G_raw.length) {
     renderAll(G_ssot);
-    document.getElementById("fCount").textContent = G_raw.length ? G_raw.length + " records" : "";
+    document.getElementById("fCount").textContent=G_raw.length?G_raw.length+" records":"";
     document.getElementById("fCount").classList.remove("on");
-    updateTitles(fromM, toM, sale, dept, false);
-    return;
+    updateTitles(fromM,toM,sale,dept,false); return;
   }
-
-  var filtered = G_raw.filter(function(r) {
-    var mRaw = String(gv(r, G_rawK.month) || "").trim();
-    var mIdx = myi(mRaw);
-    if (mIdx > 0) {
-      if (fromIdx > 0 && mIdx < fromIdx) return false;
-      if (toIdx   > 0 && mIdx > toIdx)   return false;
+  var filtered=G_raw.filter(function(r){
+    var mRaw=String(gv(r,G_rawK.month)||"").trim(), mIdx=myi(mRaw);
+    if (mIdx>0){if(fromIdx>0&&mIdx<fromIdx)return false; if(toIdx>0&&mIdx>toIdx)return false;}
+    if (sale!=="__all__"&&String(gv(r,G_rawK.sale)||"").trim()!==sale) return false;
+    if (dept!=="__all__"){
+      var rd = String(gv(r,G_rawK.dept)||"").trim();
+      if (rd === "PISB") rd = "PIS-B";
+      if (rd === "PISA") rd = "PIS-A";
+      if (rd !== dept) return false;
     }
-    if (sale !== "__all__" && String(gv(r, G_rawK.sale) || "").trim() !== sale) return false;
-    if (dept !== "__all__" && String(gv(r, G_rawK.dept) || "").trim() !== dept) return false;
-    if (client && String(gv(r, G_rawK.client) || "").toLowerCase().indexOf(client) === -1) return false;
+    if (client&&String(gv(r,G_rawK.client)||"").toLowerCase().indexOf(client)===-1) return false;
     return true;
   });
-
-  var agg = aggregateFromRaw(filtered);
-  renderAll(agg);
-
-  var cnt = document.getElementById("fCount");
-  cnt.textContent = filtered.length + " / " + G_raw.length + " records";
+  renderAll(aggregateFromRaw(filtered));
+  var cnt=document.getElementById("fCount");
+  cnt.textContent=filtered.length+" / "+G_raw.length+" records";
   cnt.classList.add("on");
-  updateTitles(fromM, toM, sale, dept, true);
+  updateTitles(fromM,toM,sale,dept,true);
 }
 
-function updateTitles(fromM, toM, sale, dept, isFiltered) {
-  var fromLbl = fromM || "";
-  var toLbl   = toM   || "";
-  var range   = (fromM === toM) ? fromLbl : (fromLbl + "–" + toLbl);
-  var parts   = [range];
-  if (isFiltered) {
-    if (sale !== "__all__") parts.push(sale.split(" ")[0]);
-    if (dept !== "__all__") parts.push(dept);
-  }
-  document.getElementById("kpiTitle").textContent = "KPI Summary — " + parts.join(" · ");
-  document.getElementById("monthlyChartTitle").textContent = "Monthly Revenue Trend — " + range;
+function updateTitles(fromM,toM,sale,dept,isFiltered) {
+  var range=(fromM===toM)?fromM:(fromM+"–"+toM);
+  var parts=[range];
+  if (isFiltered){if(sale!=="__all__")parts.push(sale.split(" ")[0]); if(dept!=="__all__")parts.push(dept);}
+  document.getElementById("kpiTitle").textContent="KPI Summary — "+parts.join(" · ");
+  document.getElementById("monthlyChartTitle").textContent="Monthly Revenue Trend — "+range;
 }
 
-// ─── KPI Cards ────────────────────────────────────────────────────────────────
 function renderKPIs(s) {
-  var wr = parseFloat(s.winRate) || 0;
-  var cards = [
-    { label: "Total Deals",  value: (s.totalRecords || 0).toLocaleString(), sub: "Jan–Apr 2026",               color: "gray"   },
-    { label: "Win",          value: (s.wonCount || 0).toLocaleString(),      sub: fmtMoney(s.wonValue),         color: "green"  },
-    { label: "Lost",         value: (s.lostCount || 0).toLocaleString(),     sub: fmtMoney(s.lostValue || 0),   color: "red"    },
-    { label: "Waiting",      value: (s.waitingCount || 0).toLocaleString(),  sub: fmtMoney(s.waitingValue),     color: "amber"  },
-    { label: "Win Rate",     value: wr.toFixed(1) + "%",                     sub: "of decided deals",           color: "blue",  bar: wr },
-    { label: "Avg Win Deal", value: fmtMoney(s.avgWinDeal || 0),             sub: "Top: " + (s.topSalesperson || "—"), color: "purple" }
+  var wr=parseFloat(s.winRate)||0;
+  var cards=[
+    {label:"Total Deals", value:(s.totalRecords||0).toLocaleString(), sub:"All periods",           color:"gray"},
+    {label:"Win",         value:(s.wonCount||0).toLocaleString(),     sub:fmtMoney(s.wonValue),    color:"green"},
+    {label:"Lost",        value:(s.lostCount||0).toLocaleString(),    sub:fmtMoney(s.lostValue||0),color:"red"},
+    {label:"Waiting",     value:(s.waitingCount||0).toLocaleString(), sub:fmtMoney(s.waitingValue),color:"amber"},
+    {label:"Win Rate",    value:wr.toFixed(1)+"%",                    sub:"of decided deals",      color:"blue", bar:wr},
+    {label:"Avg Win Deal",value:fmtMoney(s.avgWinDeal||0),            sub:"Top: "+(s.topSalesperson||"—"), color:"purple"}
   ];
-  document.getElementById("kpiGrid").innerHTML = cards.map(function(c) {
-    return '<div class="kpi-card ' + c.color + '">' +
-      '<div class="kpi-label">' + c.label + '</div>' +
-      '<div class="kpi-value">' + c.value + '</div>' +
-      '<div class="kpi-sub">'  + c.sub   + '</div>' +
-      (c.bar != null ? '<div class="win-rate-bar"><div class="win-rate-fill" style="width:' + Math.min(c.bar, 100) + '%"></div></div>' : '') +
+  document.getElementById("kpiGrid").innerHTML=cards.map(function(c){
+    return '<div class="kpi-card '+c.color+'">'+
+      '<div class="kpi-label">'+c.label+'</div>'+
+      '<div class="kpi-value">'+c.value+'</div>'+
+      '<div class="kpi-sub">'+c.sub+'</div>'+
+      (c.bar!=null?'<div class="win-rate-bar"><div class="win-rate-fill" style="width:'+Math.min(c.bar,100)+'%"></div></div>':'')+
       '</div>';
   }).join("");
 }
 
-// ─── Monthly Trend ────────────────────────────────────────────────────────────
 function renderMonthlyChart(monthly) {
-  var rows = (monthly || []).filter(function(r) {
-    return String(r["Month"] || "").toLowerCase() !== "total";
-  });
-  if (rows.length === 0) return;
-  mkChart("monthlyChart", {
-    type: "bar",
-    data: {
-      labels: rows.map(function(r) { return String(r["Month"] || ""); }),
-      datasets: [
-        { label: "Win Revenue",  data: rows.map(function(r) { return parseFloat(r["Win Revenue (THB)"])  || 0; }), backgroundColor: "rgba(52,199,123,.8)",  borderRadius: 3 },
-        { label: "Lost Revenue", data: rows.map(function(r) { return parseFloat(r["Lost Revenue (THB)"]) || 0; }), backgroundColor: "rgba(232,69,69,.6)",   borderRadius: 3 },
-        { label: "Pipeline",     data: rows.map(function(r) { return parseFloat(r["Pipeline (THB)"])     || 0; }), backgroundColor: "rgba(245,166,35,.6)",  borderRadius: 3 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: LO, tooltip: { callbacks: { label: ttLabel } } },
-      scales: {
-        x: { ticks: { color: TC }, grid: { color: GC } },
-        y: { ticks: { color: TC, callback: fmtNum }, grid: { color: GC } }
-      }
-    }
-  });
+  var rows=(monthly||[]).filter(function(r){return String(r["Month"]||"").toLowerCase()!=="total";});
+  if (!rows.length) return;
+  mkChart("monthlyChart",{type:"bar",data:{
+    labels:rows.map(function(r){return String(r["Month"]||"");}),
+    datasets:[
+      {label:"Win Revenue", data:rows.map(function(r){return parseFloat(r["Win Revenue (THB)"])||0;}),  backgroundColor:C_WIN_BG,  borderRadius:4, borderSkipped:false},
+      {label:"Lost Revenue",data:rows.map(function(r){return parseFloat(r["Lost Revenue (THB)"])||0;}), backgroundColor:C_LOST_BG, borderRadius:4, borderSkipped:false},
+      {label:"Pipeline",    data:rows.map(function(r){return parseFloat(r["Pipeline (THB)"])||0;}),     backgroundColor:C_WAIT_BG, borderRadius:4, borderSkipped:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:LO,tooltip:TT},
+    scales:{x:{ticks:{color:TC,font:{size:11}},grid:{display:false}},
+            y:{ticks:{color:TC,callback:fmtNum,font:{size:11}},grid:{color:GC},border:{display:false}}}}});
 }
 
-// ─── Salesperson Chart ────────────────────────────────────────────────────────
 function renderSaleChart(persons) {
-  if (!persons || persons.length === 0) return;
-  var d = persons.slice(0, 8);
-  mkChart("saleChart", {
-    type: "bar",
-    data: {
-      labels: d.map(function(s) { return s.sale.split(" ")[0]; }),
-      datasets: [
-        { label: "Win Revenue",  data: d.map(function(s) { return s.win  || 0; }), backgroundColor: "rgba(52,199,123,.8)",  borderRadius: 2 },
-        { label: "Lost Revenue", data: d.map(function(s) { return s.lost || 0; }), backgroundColor: "rgba(232,69,69,.7)",   borderRadius: 2 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: LO, tooltip: { callbacks: { label: ttLabel } } },
-      scales: {
-        x: { stacked: true, ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
-        y: { stacked: true, ticks: { color: TC, callback: fmtNum },   grid: { color: GC } }
-      }
-    }
-  });
+  if (!persons||!persons.length) return;
+  var d=persons.slice(0,8);
+  mkChart("saleChart",{type:"bar",data:{
+    labels:d.map(function(s){return s.sale.split(" ")[0];}),
+    datasets:[
+      {label:"Win Revenue", data:d.map(function(s){return s.win||0;}),  backgroundColor:C_WIN_BG,  borderRadius:3},
+      {label:"Lost Revenue",data:d.map(function(s){return s.lost||0;}), backgroundColor:C_LOST_BG, borderRadius:3}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:LO,tooltip:TT},
+    scales:{x:{stacked:true,ticks:{color:TC,font:{size:10}},grid:{display:false}},
+            y:{stacked:true,ticks:{color:TC,callback:fmtNum,font:{size:11}},grid:{color:GC},border:{display:false}}}}});
 }
 
-// ─── Top Clients Chart ────────────────────────────────────────────────────────
 function renderClientChart(clients) {
-  if (!clients || clients.length === 0) return;
-  var d = clients.slice(0, 10);
-  mkChart("clientChart", {
-    type: "bar",
-    data: {
-      labels: d.map(function(c) {
-        var n = c.client || "—";
-        return n.length > 22 ? n.slice(0, 22) + "…" : n;
-      }),
-      datasets: [{ label: "Win Revenue", data: d.map(function(c) { return c.win || 0; }), backgroundColor: "rgba(52,199,123,.8)", borderRadius: 2 }]
-    },
-    options: {
-      indexAxis: "y",
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ttLabel } } },
-      scales: {
-        y: { ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
-        x: { ticks: { color: TC, callback: fmtNum },   grid: { color: GC } }
-      }
-    }
-  });
+  if (!clients||!clients.length) return;
+  var d=clients.slice(0,10);
+  mkChart("clientChart",{type:"bar",data:{
+    labels:d.map(function(c){var n=c.client||"—"; return n.length>22?n.slice(0,22)+"…":n;}),
+    datasets:[{label:"Win Revenue",data:d.map(function(c){return c.win||0;}),backgroundColor:C_WIN_BG,borderRadius:3}]},
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:TT},
+    scales:{y:{ticks:{color:TC,font:{size:11}},grid:{display:false}},
+            x:{ticks:{color:TC,callback:fmtNum,font:{size:11}},grid:{color:GC},border:{display:false}}}}});
 }
 
-// ─── Salesperson Table ────────────────────────────────────────────────────────
 function renderSaleTable(persons) {
-  var t = document.getElementById("saleTable");
-  if (!persons || persons.length === 0) {
-    t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No salesperson data</td></tr>'; return;
-  }
-  var maxWin = Math.max.apply(null, persons.map(function(s) { return s.win || 0; })) || 1;
-  t.innerHTML = '<thead><tr>' +
-    '<th>Salesperson</th><th class="right">Win Rev</th><th class="right">Lost Rev</th>' +
-    '<th class="right">Deals W/L/W8</th><th class="right">Win Rate</th>' +
-    '</tr></thead><tbody>' +
-    persons.map(function(s) {
-      var pct = (s.win / maxWin * 100).toFixed(0);
-      return "<tr>" +
-        "<td><div class='bar-cell'><span style='min-width:120px'>" + safeStr(s.sale) + "</span>" +
-        "<div class='inline-bar'><div class='inline-bar-fill' style='width:" + pct + "%;background:var(--green)'></div></div></div></td>" +
-        '<td class="num" style="color:var(--green)">' + fmtMoney(s.win)  + "</td>" +
-        '<td class="num" style="color:var(--red)">'   + fmtMoney(s.lost) + "</td>" +
-        '<td class="num">' + (s.winDeals||0) + " / " + (s.lostDeals||0) + " / " + (s.waitDeals||0) + "</td>" +
-        "<td>" + wrBadge(parseFloat(s.winRate) || 0) + "</td></tr>";
-    }).join("") + "</tbody>";
+  var t=document.getElementById("saleTable");
+  if (!persons||!persons.length){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No salesperson data</td></tr>';return;}
+  var maxWin=Math.max.apply(null,persons.map(function(s){return s.win||0;}))||1;
+  t.innerHTML='<thead><tr><th>Salesperson</th><th class="right">Win Rev</th><th class="right">Lost Rev</th><th class="right">Deals W/L/W8</th><th class="right">Win Rate</th></tr></thead><tbody>'+
+    persons.map(function(s){
+      var pct=(s.win/maxWin*100).toFixed(0);
+      return "<tr><td><div class='bar-cell'><span style='min-width:120px;font-weight:500;color:var(--text)'>"+safeStr(s.sale)+"</span>"+
+        "<div class='inline-bar'><div class='inline-bar-fill' style='width:"+pct+"%;background:var(--green)'></div></div></div></td>"+
+        '<td class="num" style="color:var(--green-dark);font-weight:600">'+fmtMoney(s.win)+"</td>"+
+        '<td class="num" style="color:var(--red)">'+fmtMoney(s.lost)+"</td>"+
+        '<td class="num">'+(s.winDeals||0)+" / "+(s.lostDeals||0)+" / "+(s.waitDeals||0)+"</td>"+
+        '<td class="right">'+wrBadge(parseFloat(s.winRate)||0)+"</td></tr>";
+    }).join("")+"</tbody>";
 }
 
-// ─── Department Table ─────────────────────────────────────────────────────────
 function renderDeptTable(depts) {
-  var t = document.getElementById("deptTable");
-  if (!depts || depts.length === 0) {
-    t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No department data</td></tr>'; return;
-  }
-  var maxTotal = Math.max.apply(null, depts.map(function(d) { return d.total || 0; })) || 1;
-  t.innerHTML = '<thead><tr>' +
-    '<th>Department</th><th class="right">Win Rev</th><th class="right">Total Rev</th>' +
-    '<th class="right">Deals W/L</th><th class="right">Win Rate</th>' +
-    '</tr></thead><tbody>' +
-    depts.map(function(d) {
-      var pct = (d.win / maxTotal * 100).toFixed(0);
-      return "<tr>" +
-        "<td><div class='bar-cell'><span style='min-width:55px'>" + safeStr(d.dept) + "</span>" +
-        "<div class='inline-bar'><div class='inline-bar-fill' style='width:" + pct + "%;background:var(--blue)'></div></div></div></td>" +
-        '<td class="num" style="color:var(--green)">' + fmtMoney(d.win)   + "</td>" +
-        '<td class="num">'                            + fmtMoney(d.total) + "</td>" +
-        '<td class="num">' + (d.winDeals||0) + " / " + (d.lostDeals||0) + "</td>" +
-        "<td>" + wrBadge(parseFloat(d.winRate) || 0) + "</td></tr>";
-    }).join("") + "</tbody>";
+  var t=document.getElementById("deptTable");
+  if (!depts||!depts.length){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No department data</td></tr>';return;}
+  var maxTotal=Math.max.apply(null,depts.map(function(d){return d.total||0;}))||1;
+  t.innerHTML='<thead><tr><th>Department</th><th class="right">Win Rev</th><th class="right">Total Rev</th><th class="right">Deals W/L</th><th class="right">Win Rate</th></tr></thead><tbody>'+
+    depts.map(function(d){
+      var pct=(d.win/maxTotal*100).toFixed(0);
+      return "<tr><td><div class='bar-cell'><span style='min-width:60px;font-weight:600;color:var(--text)'>"+safeStr(d.dept)+"</span>"+
+        "<div class='inline-bar'><div class='inline-bar-fill' style='width:"+pct+"%;background:var(--red)'></div></div></div></td>"+
+        '<td class="num" style="color:var(--green-dark);font-weight:600">'+fmtMoney(d.win)+"</td>"+
+        '<td class="num">'+fmtMoney(d.total)+"</td>"+
+        '<td class="num">'+(d.winDeals||0)+" / "+(d.lostDeals||0)+"</td>"+
+        '<td class="right">'+wrBadge(parseFloat(d.winRate)||0)+"</td></tr>";
+    }).join("")+"</tbody>";
 }
 
-// ─── Pipeline Table ───────────────────────────────────────────────────────────
 function renderPipelineTable(rows) {
-  var t   = document.getElementById("pipelineTable");
-  var cnt = document.getElementById("pipelineCount");
-  if (!rows || rows.length === 0) {
-    t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No waiting deals</td></tr>';
-    cnt.textContent = ""; return;
-  }
-  cnt.textContent = rows.length + " deals";
-
-  var keys = Object.keys(rows[0] || {});
-  function findKey(candidates) {
-    for (var i = 0; i < candidates.length; i++)
-      for (var j = 0; j < keys.length; j++)
-        if (keys[j].trim().toLowerCase() === candidates[i].toLowerCase()) return keys[j];
-    return null;
-  }
-  var clientKey = findKey(["Client Name","Client","Customer","Company","Account"]);
-  var saleKey   = findKey(["Salesperson","Sale","Rep","Agent","Employee"]);
-  var valueKey  = findKey(["Value (THB)","Value","Amount","Revenue","Deal Value","Pipeline (THB)"]);
-  var deptKey   = findKey(["Dept","Dep Responsibility","Department","Division","Team"]);
-  var catKey    = findKey(["Category","Cat","Type","Task Title","Title"]);
-  var monthKey  = findKey(["Month","Date","Action Date","Period"]);
-
-  var cols = [];
-  if (clientKey) cols.push({ key: clientKey, label: "Client",    type: "str" });
-  if (saleKey)   cols.push({ key: saleKey,   label: "Sale",      type: "str" });
-  if (valueKey)  cols.push({ key: valueKey,  label: "Value (฿)", type: "num" });
-  if (deptKey)   cols.push({ key: deptKey,   label: "Dept",      type: "str" });
-  if (catKey)    cols.push({ key: catKey,    label: "Category",  type: "str" });
-  if (monthKey)  cols.push({ key: monthKey,  label: "Month",     type: "str" });
-  if (cols.length === 0) cols = keys.slice(0, 5).map(function(k) { return { key: k, label: k, type: "str" }; });
-
-  t.innerHTML = '<thead><tr>' +
-    cols.map(function(c) { return "<th" + (c.type === "num" ? ' class="right"' : "") + ">" + c.label + "</th>"; }).join("") +
-    '</tr></thead><tbody>' +
-    rows.map(function(r) {
-      return "<tr>" + cols.map(function(c) {
-        var v = r[c.key];
-        if (c.type === "num") {
-          var n = parseFloat(String(v || "0").replace(/[,฿\s]/g, "")) || 0;
-          return '<td class="num">฿' + n.toLocaleString() + "</td>";
-        }
-        return "<td>" + safeStr(v) + "</td>";
-      }).join("") + "</tr>";
-    }).join("") + "</tbody>";
+  var t=document.getElementById("pipelineTable"), cnt=document.getElementById("pipelineCount");
+  if (!rows||!rows.length){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No waiting deals</td></tr>';cnt.textContent="";return;}
+  cnt.textContent=rows.length+" deals";
+  var keys=Object.keys(rows[0]||{});
+  function findKey(cands){for(var i=0;i<cands.length;i++)for(var j=0;j<keys.length;j++)if(keys[j].trim().toLowerCase()===cands[i].toLowerCase())return keys[j];return null;}
+  var clientKey=findKey(["Client Name","Client","Customer Name","Customer","Company","Account"]);
+  var saleKey  =findKey(["Salesperson","Sale","Sales Officer","Rep","Agent","Employee"]);
+  var valueKey =findKey(["Value (THB)","Value","มูลค่างาน (THB)","Amount","Revenue","Pipeline (THB)"]);
+  var deptKey  =findKey(["Dept","แผนก","Dep Responsibility","Department","Division","Team"]);
+  var catKey   =findKey(["Category","Cat","Type","Task Title","Title"]);
+  var monthKey =findKey(["Month","Date","Action Date","Period"]);
+  var cols=[];
+  if(clientKey) cols.push({key:clientKey,label:"Client",   type:"str"});
+  if(saleKey)   cols.push({key:saleKey,  label:"Sale",     type:"str"});
+  if(valueKey)  cols.push({key:valueKey, label:"Value (฿)",type:"num"});
+  if(deptKey)   cols.push({key:deptKey,  label:"Dept",     type:"str"});
+  if(catKey)    cols.push({key:catKey,   label:"Category", type:"str"});
+  if(monthKey)  cols.push({key:monthKey, label:"Month",    type:"str"});
+  if(!cols.length) cols=keys.slice(0,5).map(function(k){return{key:k,label:k,type:"str"};});
+  t.innerHTML='<thead><tr>'+cols.map(function(c){return "<th"+(c.type==="num"?' class="right"':"")+">"+c.label+"</th>";}).join("")+'</tr></thead><tbody>'+
+    rows.map(function(r){return "<tr>"+cols.map(function(c){
+      var v=r[c.key];
+      if(c.type==="num"){var n=parseFloat(String(v||"0").replace(/[,฿\s]/g,""))||0;return '<td class="num" style="color:var(--amber);font-weight:600">฿'+n.toLocaleString()+"</td>";}
+      return "<td>"+safeStr(v)+"</td>";
+    }).join("")+"</tr>";}).join("")+"</tbody>";
 }
 
-// ─── Render all panels ────────────────────────────────────────────────────────
 function renderAll(s) {
   renderKPIs(s);
-  renderMonthlyChart(s.monthly || []);
-  renderSaleChart(s.salespersons || []);
-  renderClientChart(s.topClients || []);
-  renderSaleTable(s.salespersons || []);
-  renderDeptTable(s.departments || []);
-  renderPipelineTable(s.pipelineRows || []);
-  document.getElementById("pipelineCount").textContent =
-    (s.pipelineCount || 0) + " deals · " + fmtMoney(s.pipelineValue || s.waitingValue || 0);
+  renderMonthlyChart(s.monthly||[]);
+  renderSaleChart(s.salespersons||[]);
+  renderClientChart(s.topClients||[]);
+  renderSaleTable(s.salespersons||[]);
+  renderDeptTable(s.departments||[]);
+  renderPipelineTable(s.pipelineRows||[]);
+  document.getElementById("pipelineCount").textContent=
+    (s.pipelineCount||0)+" deals · "+fmtMoney(s.pipelineValue||s.waitingValue||0);
 }
 
-// ─── Main entry ──────────────────────────────────────────────────────────────
 function renderDashboard(data) {
-  document.getElementById("loadingState").style.display = "none";
-  document.getElementById("dashContent").style.display  = "block";
+  document.getElementById("loadingState").style.display="none";
+  document.getElementById("dashContent").style.display="block";
+  if (data.fetchedAt)
+    document.getElementById("fetchedAt").textContent=
+      "Updated: "+new Date(data.fetchedAt).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
+  if (data.error){var b=document.getElementById("errorBox");b.textContent="Warning: "+data.error;b.style.display="block";}
+  var s=data.ssot||{};
+  G_raw=s.rawRows||[]; G_rawK=detectKeys(G_raw);
 
-  if (data.fetchedAt) {
-    document.getElementById("fetchedAt").textContent =
-      "Updated: " + new Date(data.fetchedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
-  }
-  if (data.error) {
-    var b = document.getElementById("errorBox");
-    b.textContent = "Warning: " + data.error;
-    b.style.display = "block";
-  }
-
-  var s    = data.ssot || {};
-  G_raw    = s.rawRows || [];
-  G_rawK   = detectKeys(G_raw);
-
-  // If the pre-aggregated tabs (Executive Summary, etc.) are missing/empty
-  // but raw rows are present, derive everything from raw so KPIs are not zero.
-  var hasAggregates = (s.wonCount || 0) + (s.lostCount || 0) + (s.waitingCount || 0) > 0;
+  // If pre-aggregated tabs are missing/empty but raw rows exist, derive from raw
+  var hasAggregates=(s.wonCount||0)+(s.lostCount||0)+(s.waitingCount||0)>0;
   if (!hasAggregates && G_raw.length && G_rawK) {
     G_ssot = aggregateFromRaw(G_raw);
   } else {
     G_ssot = s;
   }
-
   renderAll(G_ssot);
   initFilters(G_raw);
 }
 
 function showError(err) {
-  document.getElementById("loadingState").style.display = "none";
-  var b = document.getElementById("errorBox");
-  b.textContent = "Error: " + (err.message || String(err));
-  b.style.display = "block";
-  document.getElementById("dashContent").style.display = "block";
+  document.getElementById("loadingState").style.display="none";
+  var b=document.getElementById("errorBox");
+  b.textContent="Error: "+(err.message||String(err));
+  b.style.display="block";
+  document.getElementById("dashContent").style.display="block";
 }
 
 google.script.run
