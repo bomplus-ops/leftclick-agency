@@ -33,8 +33,10 @@
 // Win Rate stored as percentage string "73.3%" (pctFmt output from generator)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ⚠ If the Report Generator writes to a different sheet, update this ID:
-var SSOT_ID = "1aDvDAPCGVkhYw8ZA44fIfwP662phHUz4a3s-pAviX0g";
+// SSOT_ID must equal the Report Generator's REPORT_FILE_ID so the dashboard
+// always reads the same file the generator writes to.
+// Report Generator REPORT_FILE_ID = '1ti6YNLsHd-Zaz2EzwGn7CU3nCK49wJnOh-3UvPRUXtQ'
+var SSOT_ID = "1ti6YNLsHd-Zaz2EzwGn7CU3nCK49wJnOh-3UvPRUXtQ";
 
 function doGet(e) {
   var html = HtmlService.createHtmlOutputFromFile("Index")
