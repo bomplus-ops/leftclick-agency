@@ -33,10 +33,10 @@
 // Win Rate stored as percentage string "73.3%" (pctFmt output from generator)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// SSOT_ID must equal the Report Generator's REPORT_FILE_ID so the dashboard
-// always reads the same file the generator writes to.
-// Report Generator REPORT_FILE_ID = '1ti6YNLsHd-Zaz2EzwGn7CU3nCK49wJnOh-3UvPRUXtQ'
-var SSOT_ID = "1ti6YNLsHd-Zaz2EzwGn7CU3nCK49wJnOh-3UvPRUXtQ";
+// ⚠ Must match the spreadsheet the Report Generator writes to.
+// Confirmed working: "V2 Qualitech_Sales_Report_2026_YTD_Jan_Apr29"
+// To point to a different report file, replace this ID.
+var SSOT_ID = "1aDvDAPCGVkhYw8ZA44fIfwP662phHUz4a3s-pAviX0g";
 
 function doGet(e) {
   var html = HtmlService.createHtmlOutputFromFile("Index")
