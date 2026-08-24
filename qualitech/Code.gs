@@ -296,8 +296,10 @@ function findSheetLoose(ss, candidates) {
   return null;
 }
 
-// Attach year to the Month field ("Jan" → "Jan 2025") using the Action Date column,
-// so the frontend can sort and filter across multiple years.
+// Slim raw rows down to only what the frontend needs, converting Date objects
+// to plain strings. Google's HtmlService "Hr" error fires when the payload
+// contains too many Date objects; keeping the wire format numeric/string-only
+// keeps the transfer small and reliable.
 function enrichMonthWithYear(rows) {
   if (!rows || !rows.length) return rows;
   var keys = Object.keys(rows[0]);
@@ -307,19 +309,41 @@ function enrichMonthWithYear(rows) {
         if (keys[k].trim().toLowerCase() === cands[c].toLowerCase()) return keys[k];
     return null;
   }
-  var monthKey = findK(["Month","Month Name","Period"]);
-  var dateKey  = findK(["Action Date","Status update Date","Submit Qutation Date","Date"]);
-  if (!monthKey || !dateKey) return rows;
+  var monthKey  = findK(["Month","Month Name","Period"]);
+  var dateKey   = findK(["Action Date","Status update Date","Submit Qutation Date","Date"]);
+  var saleKey   = findK(["Sale","Salesperson","Sales Person","Sales Officer","Rep"]);
+  var clientKey = findK(["Client Name","Client","Customer Name","Customer","Company","Account"]);
+  var valueKey  = findK(["Value (THB)","Value","มูลค่างาน (THB)","Revenue","Amount"]);
+  var statusKey = findK(["Status","Deal Status","Result","Outcome","Stage"]);
+  var deptKey   = findK(["Dept","Department","แผนก","Dep Responsibility","Division"]);
+  var catKey    = findK(["Category","Cat","Type","Task Title","Title"]);
 
   return rows.map(function(r) {
-    var m = String(r[monthKey] || "").trim();
-    if (!m) return r;
-    if (/\s\d{4}$/.test(m)) return r;  // already has year
-    var d = r[dateKey];
-    if (d instanceof Date && !isNaN(d)) {
-      r[monthKey] = MONTH_ABBR[d.getMonth()] + " " + d.getFullYear();
+    // Derive "Jan 2025" style Month from date if the source only has "Jan"
+    var m = monthKey ? String(r[monthKey] || "").trim() : "";
+    if (m && !/\s\d{4}$/.test(m)) {
+      var d = dateKey ? r[dateKey] : null;
+      if (d instanceof Date && !isNaN(d))
+        m = MONTH_ABBR[d.getMonth()] + " " + d.getFullYear();
     }
-    return r;
+    // Value could be number or "Unit rate" string — normalise to number
+    var val = valueKey ? r[valueKey] : 0;
+    var valNum = (typeof val === "number") ? val
+               : parseFloat(String(val || "").replace(/[,฿\s]/g, ""));
+    if (isNaN(valNum)) valNum = 0;
+
+    return {
+      "Month":       m,
+      "Sale":        saleKey   ? String(r[saleKey]   || "").trim() : "",
+      "Client Name": clientKey ? String(r[clientKey] || "").trim() : "",
+      "Value (THB)": valNum,
+      "Status":      statusKey ? String(r[statusKey] || "").trim() : "",
+      "Dept":        deptKey   ? normDeptName(String(r[deptKey] || "").trim()) : "",
+      "Category":    catKey    ? String(r[catKey]    || "").trim() : ""
+    };
+  }).filter(function(r) {
+    // Drop rows with no meaningful content
+    return r["Month"] || r["Sale"] || r["Client Name"] || r["Value (THB)"] > 0;
   });
 }
 
