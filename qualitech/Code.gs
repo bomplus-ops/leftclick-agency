@@ -33,10 +33,13 @@
 // Win Rate stored as percentage string "73.3%" (pctFmt output from generator)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ⚠ Must match the spreadsheet the Report Generator writes to.
-// Confirmed working: "V2 Qualitech_Sales_Report_2026_YTD_Jan_Apr29"
-// To point to a different report file, replace this ID.
+// Pre-aggregated report (Executive Summary, Salesperson Performance, etc.)
 var SSOT_ID = "1aDvDAPCGVkhYw8ZA44fIfwP662phHUz4a3s-pAviX0g";
+
+// Source-of-truth: RFQ-Job Process Record — Quotation tab
+// Used for live raw rows in the filter bar (always up-to-date)
+var SOURCE_ID = "1TWdKkoQsDgqgRgDd2g6MNG5P4pV7wImeuZ4Ec3DhYa0";
+var MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 function doGet(e) {
   var html = HtmlService.createHtmlOutputFromFile("Index")
@@ -72,7 +75,9 @@ function fetchAllTabs(id) {
   var deptRows     = deptTab    ? sheetToObjects(deptTab)    : [];
   var clientRows   = clientTab  ? sheetToObjects(clientTab)  : [];
   var pipelineRows = pipeTab    ? sheetToObjects(pipeTab)    : [];
-  var rawRows      = rawTab     ? sheetToObjects(rawTab)     : [];
+  // Prefer live data from RFQ source; fall back to pre-processed Raw Data tab
+  var rawRows = fetchRawFromSource();
+  if (!rawRows.length && rawTab) rawRows = sheetToObjects(rawTab);
 
   // 3. Normalise using exact column names from Report Generator v2.0
   var salespersons = normaliseSale(salesRows);
@@ -254,6 +259,64 @@ function normaliseDept(rows) {
   }).filter(function(d){
     return d.dept && d.dept !== "—" && String(d.dept).toUpperCase() !== "TOTAL";
   }).sort(function(a, b){ return b.total - a.total; });
+}
+
+// ── Fetch raw deals from RFQ-Job Process Record (Quotation tab) ───────────────
+// Columns used: แผนก[2] | Customer Name[4] | วันที่ในใบเสนอราคา[8] |
+//               มูลค่างาน (THB)[15] | Status[19] | Sales Officer[29] | Year[31]
+// Status values in source: 'Win' | 'Lost' | 'Waiting' | 'Cancelled'
+// Returns rows normalised to the same shape as the "Raw Data" tab so
+// detectKeys() and filterAndRender() work without modification.
+function fetchRawFromSource() {
+  try {
+    var ss    = SpreadsheetApp.openById(SOURCE_ID);
+    var sheet = ss.getSheetByName("Quotation");
+    if (!sheet) return [];
+
+    var values = sheet.getDataRange().getValues();
+    if (values.length < 2) return [];
+
+    var currentYear = new Date().getFullYear();
+    var rows = [];
+
+    for (var i = 1; i < values.length; i++) {
+      var r = values[i];
+
+      // Year filter — keep current year only
+      var yr = parseInt(r[31]);
+      if (yr !== currentYear) continue;
+
+      // Status filter — skip Cancelled; keep Win / Lost / Waiting
+      var status = String(r[19] || "").trim();
+      if (status !== "Win" && status !== "Lost" && status !== "Waiting") continue;
+
+      // Derive month abbreviation from date
+      var month = "";
+      var d = r[8];
+      if (d instanceof Date && !isNaN(d)) {
+        month = MONTH_ABBR[d.getMonth()];
+      }
+
+      // Value — could be a number or string like "Unit rate"
+      var val = r[15];
+      var valNum = (typeof val === "number") ? val : parseFloat(String(val || "").replace(/[,฿\s]/g, ""));
+      if (isNaN(valNum)) valNum = 0;
+
+      rows.push({
+        "Month":       month,
+        "Sale":        String(r[29] || "").trim(),
+        "Client Name": String(r[4]  || "").trim(),
+        "Value (THB)": valNum,
+        "Status":      status,
+        "Dept":        String(r[2]  || "").trim(),
+        "Category":    String(r[5]  || "").trim()   // Project description
+      });
+    }
+    return rows;
+  } catch(e) {
+    // If Dashboard script lacks access to SOURCE_ID, fall back silently
+    return [];
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
