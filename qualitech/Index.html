@@ -717,10 +717,16 @@ function renderAll(s) {
 function renderDashboard(data) {
   document.getElementById("loadingState").style.display="none";
   document.getElementById("dashContent").style.display="block";
+  if (!data) {
+    var b=document.getElementById("errorBox");
+    b.textContent="Server returned no data. The payload may be too large — try filtering the source sheet or contact admin.";
+    b.style.display="block";
+    return;
+  }
   if (data.fetchedAt)
     document.getElementById("fetchedAt").textContent=
       "Updated: "+new Date(data.fetchedAt).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
-  if (data.error){var b=document.getElementById("errorBox");b.textContent="Warning: "+data.error;b.style.display="block";}
+  if (data.error){var eb=document.getElementById("errorBox");eb.textContent="Warning: "+data.error;eb.style.display="block";}
   var s=data.ssot||{};
   G_raw=s.rawRows||[]; G_rawK=detectKeys(G_raw);
 

@@ -57,8 +57,10 @@ function fetchAllTabs(id) {
   var sheetNames = ss.getSheets().map(function(s){ return s.getName(); });
 
   // 1. Executive Summary → KPIs + monthly breakdown
-  var execSheet = ss.getSheetByName("Executive Summary") || ss.getSheets()[0];
-  var exec      = parseExecutiveSummary(execSheet);
+  // Only parse Executive Summary if it actually exists — otherwise the fallback
+  // picks up random rows and can leak Date objects into the response.
+  var execSheet = ss.getSheetByName("Executive Summary");
+  var exec      = execSheet ? parseExecutiveSummary(execSheet) : { kpi: {}, monthly: [] };
 
   // 2. Pre-aggregated tabs (each has title row 1, empty row 2, headers row 3)
   var salesTab   = ss.getSheetByName("Salesperson Performance");
@@ -85,14 +87,8 @@ function fetchAllTabs(id) {
 
   return {
     debug: {
-      sheetNames:      sheetNames,
-      execKPI:         exec.kpi,
-      salesHeaders:    salesRows.length    > 0 ? Object.keys(salesRows[0])    : [],
-      deptHeaders:     deptRows.length     > 0 ? Object.keys(deptRows[0])     : [],
-      clientHeaders:   clientRows.length   > 0 ? Object.keys(clientRows[0])   : [],
-      pipelineHeaders: pipelineRows.length > 0 ? Object.keys(pipelineRows[0]) : [],
-      rawHeaders:      rawRows.length      > 0 ? Object.keys(rawRows[0])      : [],
-      rawCount:        rawRows.length
+      sheetNames: sheetNames,
+      rawCount:   rawRows.length
     },
     // KPIs from Executive Summary
     totalRecords:   exec.kpi.totalDeals    || 0,
@@ -112,7 +108,7 @@ function fetchAllTabs(id) {
     salespersons:   salespersons,
     topClients:     topClients,
     departments:    departments,
-    pipelineRows:   pipelineRows,
+    pipelineRows:   stripDates(pipelineRows),
     pipelineCount:  exec.kpi.waiting || pipelineRows.length,
     pipelineValue:  exec.kpi.pipeline || 0,
     // Raw rows for frontend filtering
@@ -285,6 +281,21 @@ function pick(obj, candidates) {
 }
 
 // Case-insensitive sheet lookup that tolerates trailing/leading spaces in the tab name
+// Convert any Date values in each row to ISO strings so the response
+// serializes cleanly across the google.script.run bridge.
+function stripDates(rows) {
+  if (!rows || !rows.length) return rows;
+  return rows.map(function(r) {
+    var out = {};
+    for (var k in r) {
+      var v = r[k];
+      if (v instanceof Date) out[k] = isNaN(v) ? "" : v.toISOString().slice(0,10);
+      else out[k] = v;
+    }
+    return out;
+  });
+}
+
 function findSheetLoose(ss, candidates) {
   var sheets = ss.getSheets();
   for (var c = 0; c < candidates.length; c++) {
