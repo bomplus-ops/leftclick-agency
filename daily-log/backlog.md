@@ -3,16 +3,17 @@
 Updated by Daily Workflow Bot each morning.
 Status: `open` | `done` | `blocked` | `dropped`
 
-Last updated: 2026-08-20
+Last updated: 2026-08-24
 
 | Task | Status | Opened | Days Open | Notes |
 |------|--------|--------|-----------|-------|
-| Netlify Forms → email notification | **open — CRITICAL [SKIPPED ×22]** | 2026-05-21 | **91** | 3-min fix: `app.netlify.com` → leftclick-agency → Site configuration → Forms → Form notifications → Add notification → Email → `bomplus@gmail.com` → Save → submit test form at `/contact.html` → confirm email arrives. Aug 21 post goes live TOMORROW — fix tonight or leads are silently lost. |
-| Plausible account activation | **open — CRITICAL [SKIPPED ×22]** | 2026-05-22 | **90** | Script already live in all 4 HTML pages. 3 min at `plausible.io` → Add site → `leftclick-agency.netlify.app` → verify. All post-driven traffic is permanently invisible without this. |
-| Branded OG image (1200×630px) | **open — CRITICAL** | 2026-05-21 | **91** | Every LinkedIn link share shows a blank grey card. Canva → 1200×630px → black bg → "Left**Click**" wordmark (Click in `#10b981`) → "AI Automation for Ambitious Agencies" → export PNG → add to repo root as `og-image.png` → update `og:image` meta tags in all 4 HTML files → commit → deploy → verify at `opengraph.xyz/leftclick-agency.netlify.app`. 15 min. |
+| Netlify Forms → email notification | **open — CRITICAL [SKIPPED ×26]** | 2026-05-21 | **95** | 3-min fix: `app.netlify.com` → leftclick-agency → Site configuration → Forms → Form notifications → Add notification → Email → `bomplus@gmail.com` → Save → submit test form at `/contact.html` → confirm email arrives. Aug 25 post goes live TOMORROW — fix today or leads from tomorrow's post are silently lost. |
+| Plausible account activation | **open — CRITICAL [SKIPPED ×26]** | 2026-05-22 | **94** | Script already live in all 4 HTML pages. 3 min at `plausible.io` → Add site → `leftclick-agency.netlify.app` → verify. All post-driven traffic is permanently invisible without this. |
+| Branded OG image (1200×630px) | **open — CRITICAL** | 2026-05-21 | **95** | Every LinkedIn link share shows a blank grey card. Canva → 1200×630px → black bg → "Left**Click**" wordmark (Click in `#10b981`) → "AI Automation for Ambitious Agencies" → export PNG → add to repo root as `og-image.png` → update `og:image` meta tags in all 4 HTML files → commit → deploy → verify at `opengraph.xyz/leftclick-agency.netlify.app`. 15 min. |
 | Post Aug 14 LinkedIn content | **dropped — window closed 2026-08-20** | 2026-08-14 | — | No URL confirmed by Aug 19 deadline. Bot formally closed as MISSED on Aug 20. Draft preserved at `daily-log/2026-08-14-post.md` for future reference. No further prompts. |
-| Post Aug 17 LinkedIn content | **open — UNCONFIRMED [3 DAYS PAST DUE — FINAL DAY]** | 2026-08-15 | **5** | Draft at `daily-log/2026-08-17-post.md` lines 69–96. Not confirmed posted as of Aug 20. Check LinkedIn activity now → if live, copy URL and confirm; if not, post it today (still usable as evergreen). Bot closes as MISSED tomorrow (Aug 21) if no URL confirmed. |
-| Review and post Aug 21 LinkedIn content | **open — POST TOMORROW** | 2026-08-19 | **1** | Draft at `daily-log/2026-08-21-post.md`. Cold Outreach / Lead Gen. Review today → post Thu Aug 21 ~9am → copy URL → confirm. This is the highest-priority action today. |
+| Post Aug 17 LinkedIn content | **dropped — window closed 2026-08-24** | 2026-08-15 | — | Bot committed to closing as MISSED on Aug 21 if no URL confirmed. No confirmation received. Officially MISSED — 9 days open, 7 days past due. Draft preserved at `daily-log/2026-08-17-post.md`. No further prompts. |
+| Post Aug 21 LinkedIn content | **dropped — window closed 2026-08-24** | 2026-08-19 | — | Draft was ready. No post confirmed by Sunday Aug 24 (3 days past Thu publish date). Officially MISSED. Cold Outreach draft preserved at `daily-log/2026-08-21-post.md` — strong evergreen content, can be reused in a future week. |
+| Post Aug 25 LinkedIn content | **open — POST TOMORROW** | 2026-08-24 | **0** | Draft at `daily-log/2026-08-25-post.md`. Hiring Automation / AI Screening. Review today → post Mon Aug 25 ~9am → copy URL → confirm. |
 | Post Aug 11 LinkedIn content or mark missed | **dropped — window closed** | 2026-08-11 | — | Last-chance deadline (Thu Aug 13) passed without a post. Officially missed — 11 consecutive misses since Jun 10. |
 | Confirm Jul 3 post or mark missed | **dropped — window closed** | 2026-07-04 | — | Closed 2026-08-11 in content-calendar.md. Day 39 — confirmation window passed. No action needed. |
 | Confirm Jul 7 post or mark missed | **dropped — window closed** | 2026-07-08 | — | Closed 2026-08-11 in content-calendar.md. Day 35 — window passed. |
