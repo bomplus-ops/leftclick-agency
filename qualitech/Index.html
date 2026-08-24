@@ -27,15 +27,15 @@
     .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .state-overlay h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
-    .error-box { background: rgba(232,69,69,.1); border: 1px solid rgba(232,69,69,.3); border-radius: var(--radius); padding: 16px 20px; color: var(--red); margin-bottom: 20px; font-size: 13px; }
-    /* DEBUG BOX */
+    .error-box { background: rgba(232,69,69,.1); border: 1px solid rgba(232,69,69,.3); border-radius: var(--radius); padding: 16px 20px; color: var(--red); margin-bottom: 20px; font-size: 13px; white-space: pre-wrap; }
+    /* DEBUG */
     .debug-box { background: #0a0f1a; border: 1px solid var(--amber); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; }
     .debug-box h4 { color: var(--amber); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
     .debug-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .debug-item label { font-size: 10px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
-    .debug-item pre { font-size: 12px; color: var(--green); background: #0f1a0f; padding: 8px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 120px; overflow-y: auto; }
+    .debug-item pre { font-size: 11px; color: var(--green); background: #0f1a0f; padding: 8px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 140px; overflow-y: auto; }
     /* KPIs */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 14px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid; border-radius: var(--radius); padding: 16px 18px; }
     .kpi-card.blue   { border-top-color: var(--blue);   }
     .kpi-card.amber  { border-top-color: var(--amber);  }
@@ -45,25 +45,38 @@
     .kpi-card.gray   { border-top-color: var(--gray);   }
     .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
     .kpi-value { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: #fff; margin-bottom: 3px; }
-    .kpi-sub   { font-size: 12px; color: var(--muted); }
+    .kpi-sub { font-size: 12px; color: var(--muted); }
+    .win-rate-bar { height: 5px; border-radius: 3px; background: var(--surface2); margin-top: 6px; }
+    .win-rate-fill { height: 100%; border-radius: 3px; background: var(--green); }
+    /* Layout */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 960px) { .two-col { grid-template-columns: 1fr; } }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     .card-header { padding: 13px 18px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
     .card-body { padding: 18px; }
+    /* Tables */
     .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .data-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
     .data-table td { padding: 9px 12px; border-bottom: 1px solid rgba(46,51,84,.4); vertical-align: middle; }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:hover td { background: rgba(79,142,247,.04); }
     .right { text-align: right; }
-    .num   { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .chart-wrap   { position: relative; height: 300px; }
-    .chart-wrap-h { position: relative; height: 360px; }
-    .pipeline-scroll { max-height: 460px; overflow-y: auto; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    /* Inline bar for tables */
+    .bar-cell { display: flex; align-items: center; gap: 8px; }
+    .inline-bar { flex: 1; height: 4px; border-radius: 2px; background: var(--surface2); min-width: 40px; }
+    .inline-bar-fill { height: 100%; border-radius: 2px; }
+    /* Charts */
+    .chart-wrap   { position: relative; height: 280px; }
+    .chart-wrap-lg { position: relative; height: 340px; }
+    .chart-wrap-xl { position: relative; height: 200px; }
+    .pipeline-scroll { max-height: 500px; overflow-y: auto; }
     .footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 32px; }
-    .win-rate-bar { height: 6px; border-radius: 3px; background: var(--surface2); margin-top: 4px; }
-    .win-rate-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width .4s; }
+    /* Win rate badge */
+    .wr { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 11px; font-weight: 700; }
+    .wr-hi { background: rgba(52,199,123,.15); color: var(--green); }
+    .wr-mid { background: rgba(245,166,35,.15); color: var(--amber); }
+    .wr-lo  { background: rgba(232,69,69,.15); color: var(--red); }
   </style>
 </head>
 <body>
@@ -74,6 +87,7 @@
   </div>
   <div class="header-meta" id="fetchedAt">Loading…</div>
 </div>
+
 <div class="main">
   <div id="loadingState" class="state-overlay">
     <div class="spinner"></div>
@@ -84,20 +98,20 @@
 
   <div id="dashContent" style="display:none">
 
-    <!-- DEBUG PANEL — ลบทิ้งหลังยืนยันข้อมูลถูกต้อง -->
+    <!-- DEBUG PANEL -->
     <div class="debug-box" id="debugBox">
-      <h4>🔍 Debug Info — ยืนยันข้อมูลจาก Executive Summary</h4>
+      <h4>🔍 Debug — ยืนยันค่า KPI ถูกต้องก่อนลบ panel นี้</h4>
       <div class="debug-grid">
         <div class="debug-item">
-          <label>KPI จาก Executive Summary (execKPI)</label>
+          <label>KPI จาก Executive Summary</label>
           <pre id="dbKPI"></pre>
         </div>
         <div class="debug-item">
-          <label>Sheet Tabs พบทั้งหมด</label>
+          <label>Sheet Tabs</label>
           <pre id="dbSheets"></pre>
         </div>
         <div class="debug-item">
-          <label>Salesperson Headers</label>
+          <label>Salesperson Headers (ควรมี Salesperson, Win Revenue (THB), ...)</label>
           <pre id="dbSaleHdr"></pre>
         </div>
         <div class="debug-item">
@@ -107,57 +121,75 @@
       </div>
     </div>
 
+    <!-- KPI SUMMARY -->
     <div class="section">
       <div class="section-title">KPI Summary — Jan–Apr 2026</div>
       <div class="kpi-grid" id="kpiGrid"></div>
     </div>
 
-    <div class="section two-col">
+    <!-- MONTHLY TREND -->
+    <div class="section">
       <div class="card">
-        <div class="card-header">Volume by Sales Representative</div>
-        <div class="card-body"><div class="chart-wrap"><canvas id="saleChart"></canvas></div></div>
-      </div>
-      <div class="card">
-        <div class="card-header">Top 10 Clients by Volume</div>
-        <div class="card-body"><div class="chart-wrap-h"><canvas id="clientChart"></canvas></div></div>
+        <div class="card-header">Monthly Revenue Trend (Jan–Apr 2026)</div>
+        <div class="card-body"><div class="chart-wrap-xl"><canvas id="monthlyChart"></canvas></div></div>
       </div>
     </div>
 
+    <!-- SALESPERSON + CLIENTS -->
+    <div class="section two-col">
+      <div class="card">
+        <div class="card-header">Win Revenue by Salesperson</div>
+        <div class="card-body"><div class="chart-wrap"><canvas id="saleChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">Top 10 Clients by Win Revenue</div>
+        <div class="card-body"><div class="chart-wrap-lg"><canvas id="clientChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- SALESPERSON TABLE + DEPT TABLE -->
     <div class="section two-col">
       <div class="card">
         <div class="card-header">Salesperson Performance</div>
         <div class="card-body" style="padding:0"><table class="data-table" id="saleTable"></table></div>
       </div>
       <div class="card">
-        <div class="card-header">Department Responsibility</div>
+        <div class="card-header">Department Performance</div>
         <div class="card-body" style="padding:0"><table class="data-table" id="deptTable"></table></div>
       </div>
     </div>
 
+    <!-- PIPELINE -->
     <div class="section">
       <div class="card">
         <div class="card-header">
           <span>Pipeline — Waiting Deals</span>
           <span id="pipelineCount" style="font-size:12px;color:var(--amber)"></span>
         </div>
-        <div class="pipeline-scroll"><table class="data-table" id="pipelineTable"></table></div>
+        <div class="pipeline-scroll">
+          <table class="data-table" id="pipelineTable"></table>
+        </div>
       </div>
     </div>
-  </div>
+
+  </div><!-- /dashContent -->
+</div><!-- /main -->
+
+<div class="footer">
+  Qualitech Sales Dashboard &middot; Google Sheets &amp; Apps Script &middot; Data: V2 Qualitech_Sales_Report_2026_YTD_Jan_Apr29
 </div>
-<div class="footer">Qualitech Sales Dashboard &middot; Google Sheets &amp; Apps Script &middot; Data: V2 Qualitech_Sales_Report_2026_YTD_Jan_Apr29</div>
 
 <script>
-function fmt(n) {
+// ─── Formatters ───────────────────────────────────────────────────────────────
+function fmtMoney(n) {
   n = parseFloat(n) || 0;
   if (n === 0) return "—";
   if (n >= 1e6) return "฿" + (n / 1e6).toFixed(2) + "M";
   if (n >= 1e3) return "฿" + (n / 1e3).toFixed(1) + "K";
   return "฿" + n.toLocaleString();
 }
-function fmtN(n) {
+function fmtNum(n) {
   n = parseFloat(n) || 0;
-  if (n === 0) return "—";
   if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
   if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
   return n.toLocaleString();
@@ -167,149 +199,201 @@ function safeStr(v) {
   if (v instanceof Date) return v.toLocaleDateString("th-TH");
   return String(v);
 }
+function wrBadge(wr) {
+  var cls = wr >= 70 ? "wr-hi" : wr >= 50 ? "wr-mid" : "wr-lo";
+  return '<span class="wr ' + cls + '">' + wr.toFixed(1) + "%</span>";
+}
 
+// ─── Chart globals ────────────────────────────────────────────────────────────
 var GC = "rgba(46,51,84,.4)", TC = "#8b90b4";
 var LO = { labels: { color: TC, font: { size: 11 }, boxWidth: 12 } };
-var TL = function(c) { return c.dataset.label + ": " + fmtN(c.parsed.y || c.parsed.x); };
-// Chart datasets for win/waiting/lost
-var DS = [
-  { label: "Win",     key: "win",     color: "rgba(52,199,123,.8)"  },
-  { label: "Waiting", key: "waiting", color: "rgba(245,166,35,.8)"  },
-  { label: "Lost",    key: "lost",    color: "rgba(232,69,69,.8)"   }
-];
+function ttLabel(c) { return c.dataset.label + ": " + fmtNum(c.parsed.y || c.parsed.x || 0); }
 
+// ─── Debug ────────────────────────────────────────────────────────────────────
 function renderDebug(dbg) {
   if (!dbg) return;
   document.getElementById("dbKPI").textContent      = JSON.stringify(dbg.execKPI || {}, null, 2);
   document.getElementById("dbSheets").textContent   = (dbg.sheetNames || []).join("\n");
-  document.getElementById("dbSaleHdr").textContent  = (dbg.salesHeaders || []).join("\n");
+  document.getElementById("dbSaleHdr").textContent  = (dbg.salesHeaders || []).join(" | ");
   document.getElementById("dbOtherHdr").textContent =
-    "Pipeline:\n" + (dbg.pipelineHeaders || []).join(", ") +
-    "\n\nDept:\n" + (dbg.deptHeaders || []).join(", ") +
-    "\n\nClient:\n" + (dbg.clientHeaders || []).join(", ");
+    "Pipeline: " + (dbg.pipelineHeaders || []).join(", ") +
+    "\nDept: "   + (dbg.deptHeaders    || []).join(", ") +
+    "\nClients: " + (dbg.clientHeaders  || []).join(", ");
 }
 
+// ─── KPI Cards ───────────────────────────────────────────────────────────────
 function renderKPIs(s) {
-  var g = document.getElementById("kpiGrid");
   var wr = parseFloat(s.winRate) || 0;
   var cards = [
-    { label: "Total Deals",    value: (s.totalRecords || 0).toLocaleString(), sub: "Jan–Apr 2026",                          color: "gray"   },
-    { label: "Win",            value: (s.wonCount     || 0).toLocaleString(), sub: fmt(s.wonValue) + " revenue",            color: "green"  },
-    { label: "Lost",           value: (s.lostCount    || 0).toLocaleString(), sub: fmt(s.lostValue || 0) + " lost revenue", color: "red"    },
-    { label: "Waiting",        value: (s.waitingCount || 0).toLocaleString(), sub: fmt(s.waitingValue) + " pipeline",       color: "amber"  },
-    { label: "Win Rate",       value: wr.toFixed(1) + "%",                    sub: "of closed deals",                       color: "blue"   },
-    { label: "Avg Win Deal",   value: fmt(s.avgWinDeal || 0),                 sub: s.topSalesperson ? "Top: " + s.topSalesperson : "per deal", color: "purple" }
+    { label: "Total Deals",  value: (s.totalRecords || 0).toLocaleString(), sub: "Jan–Apr 2026",               color: "gray"   },
+    { label: "Win",          value: (s.wonCount || 0).toLocaleString(),      sub: fmtMoney(s.wonValue),         color: "green"  },
+    { label: "Lost",         value: (s.lostCount || 0).toLocaleString(),     sub: fmtMoney(s.lostValue || 0),   color: "red"    },
+    { label: "Waiting",      value: (s.waitingCount || 0).toLocaleString(),  sub: fmtMoney(s.waitingValue),     color: "amber"  },
+    { label: "Win Rate",     value: wr.toFixed(1) + "%",                     sub: "of decided deals",           color: "blue",  bar: wr },
+    { label: "Avg Win Deal", value: fmtMoney(s.avgWinDeal || 0),             sub: "Top: " + (s.topSalesperson || "—"), color: "purple" }
   ];
-  g.innerHTML = cards.map(function(c) {
-    var bar = c.label === "Win Rate"
-      ? '<div class="win-rate-bar"><div class="win-rate-fill" style="width:' + Math.min(wr, 100) + '%"></div></div>'
-      : "";
+  document.getElementById("kpiGrid").innerHTML = cards.map(function(c) {
     return '<div class="kpi-card ' + c.color + '">' +
       '<div class="kpi-label">' + c.label + '</div>' +
       '<div class="kpi-value">' + c.value + '</div>' +
       '<div class="kpi-sub">'  + c.sub   + '</div>' +
-      bar + '</div>';
+      (c.bar != null
+        ? '<div class="win-rate-bar"><div class="win-rate-fill" style="width:' + Math.min(c.bar, 100) + '%"></div></div>'
+        : '') +
+      '</div>';
   }).join("");
 }
 
-function renderSaleChart(persons) {
-  if (!persons || persons.length === 0) return;
-  var d = persons.slice(0, 10);
-  new Chart(document.getElementById("saleChart").getContext("2d"), {
+// ─── Monthly Trend Chart ──────────────────────────────────────────────────────
+function renderMonthlyChart(monthly) {
+  // Exclude TOTAL row, keep month rows only
+  var rows = (monthly || []).filter(function(r) {
+    return String(r["Month"] || "").toLowerCase() !== "total";
+  });
+  if (rows.length === 0) return;
+  var labels  = rows.map(function(r) { return String(r["Month"] || ""); });
+  var winRev  = rows.map(function(r) { return parseFloat(r["Win Revenue (THB)"])  || 0; });
+  var lostRev = rows.map(function(r) { return parseFloat(r["Lost Revenue (THB)"]) || 0; });
+  var pipe    = rows.map(function(r) { return parseFloat(r["Pipeline (THB)"])     || 0; });
+  new Chart(document.getElementById("monthlyChart").getContext("2d"), {
     type: "bar",
     data: {
-      labels: d.map(function(s) { return s.sale; }),
-      datasets: DS.map(function(ds) {
-        return { label: ds.label, data: d.map(function(s) { return s[ds.key] || 0; }), backgroundColor: ds.color, borderRadius: 2 };
-      })
+      labels: labels,
+      datasets: [
+        { label: "Win Revenue",  data: winRev,  backgroundColor: "rgba(52,199,123,.8)",  borderRadius: 3 },
+        { label: "Lost Revenue", data: lostRev, backgroundColor: "rgba(232,69,69,.6)",   borderRadius: 3 },
+        { label: "Pipeline",     data: pipe,    backgroundColor: "rgba(245,166,35,.6)",  borderRadius: 3 }
+      ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: LO, tooltip: { callbacks: { label: TL } } },
+      plugins: { legend: LO, tooltip: { callbacks: { label: ttLabel } } },
       scales: {
-        x: { stacked: true, ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
-        y: { stacked: true, ticks: { color: TC, callback: fmtN },     grid: { color: GC } }
+        x: { ticks: { color: TC }, grid: { color: GC } },
+        y: { ticks: { color: TC, callback: fmtNum }, grid: { color: GC } }
       }
     }
   });
 }
 
+// ─── Salesperson Chart (win + lost only; waiting = 0 in this tab) ─────────────
+function renderSaleChart(persons) {
+  if (!persons || persons.length === 0) return;
+  var d = persons.slice(0, 8);
+  new Chart(document.getElementById("saleChart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels: d.map(function(s) { return s.sale.split(" ")[0]; }),
+      datasets: [
+        { label: "Win Revenue",  data: d.map(function(s) { return s.win  || 0; }), backgroundColor: "rgba(52,199,123,.8)",  borderRadius: 2 },
+        { label: "Lost Revenue", data: d.map(function(s) { return s.lost || 0; }), backgroundColor: "rgba(232,69,69,.7)",   borderRadius: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: LO, tooltip: { callbacks: { label: ttLabel } } },
+      scales: {
+        x: { stacked: true, ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
+        y: { stacked: true, ticks: { color: TC, callback: fmtNum },   grid: { color: GC } }
+      }
+    }
+  });
+}
+
+// ─── Top Clients Chart ────────────────────────────────────────────────────────
 function renderClientChart(clients) {
   if (!clients || clients.length === 0) return;
   var d = clients.slice(0, 10);
   new Chart(document.getElementById("clientChart").getContext("2d"), {
     type: "bar",
     data: {
-      labels: d.map(function(c) { return c.client && c.client.length > 26 ? c.client.slice(0, 26) + "…" : (c.client || "—"); }),
-      datasets: DS.map(function(ds) {
-        return { label: ds.label, data: d.map(function(c) { return c[ds.key] || 0; }), backgroundColor: ds.color, borderRadius: 2 };
-      })
+      labels: d.map(function(c) {
+        var n = c.client || "—";
+        return n.length > 22 ? n.slice(0, 22) + "…" : n;
+      }),
+      datasets: [
+        { label: "Win Revenue", data: d.map(function(c) { return c.win || 0; }), backgroundColor: "rgba(52,199,123,.8)", borderRadius: 2 }
+      ]
     },
     options: {
       indexAxis: "y",
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: LO, tooltip: { callbacks: { label: TL } } },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ttLabel } } },
       scales: {
-        y: { stacked: true, ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
-        x: { stacked: true, ticks: { color: TC, callback: fmtN },     grid: { color: GC } }
+        y: { ticks: { color: TC, font: { size: 10 } }, grid: { color: GC } },
+        x: { ticks: { color: TC, callback: fmtNum },   grid: { color: GC } }
       }
     }
   });
 }
 
+// ─── Salesperson Table ────────────────────────────────────────────────────────
 function renderSaleTable(persons) {
   var t = document.getElementById("saleTable");
-  if (!persons || persons.length === 0) { t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No data</td></tr>'; return; }
+  if (!persons || persons.length === 0) {
+    t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No salesperson data</td></tr>'; return;
+  }
+  var maxWin = Math.max.apply(null, persons.map(function(s) { return s.win || 0; })) || 1;
   t.innerHTML = '<thead><tr>' +
-    '<th>Salesperson</th><th class="right">Win ฿</th><th class="right">Waiting ฿</th>' +
-    '<th class="right">Lost ฿</th><th class="right">Deals W/L</th><th class="right">Win Rate</th>' +
+    '<th>Salesperson</th><th class="right">Win Rev</th><th class="right">Lost Rev</th>' +
+    '<th class="right">Deals W/L/W8</th><th class="right">Win Rate</th>' +
     '</tr></thead><tbody>' +
     persons.map(function(s) {
-      var wr = parseFloat(s.winRate) || 0;  // already 0-100
+      var pct = (s.win / maxWin * 100).toFixed(0);
       return "<tr>" +
-        "<td>" + safeStr(s.sale) + "</td>" +
-        '<td class="num" style="color:var(--green)">'  + fmtN(s.win)     + "</td>" +
-        '<td class="num" style="color:var(--amber)">'  + fmtN(s.waiting) + "</td>" +
-        '<td class="num" style="color:var(--red)">'    + fmtN(s.lost)    + "</td>" +
-        '<td class="num">' + (s.winDeals || 0) + "/" + (s.lostDeals || 0) + "</td>" +
-        '<td class="num" style="color:' + (wr >= 70 ? "var(--green)" : wr >= 50 ? "var(--amber)" : "var(--red)") + '">' +
-          wr.toFixed(1) + "%" + "</td>" +
+        "<td>" +
+          '<div class="bar-cell">' +
+            '<span style="min-width:120px">' + safeStr(s.sale) + '</span>' +
+            '<div class="inline-bar"><div class="inline-bar-fill" style="width:' + pct + '%;background:var(--green)"></div></div>' +
+          '</div>' +
+        "</td>" +
+        '<td class="num" style="color:var(--green)">'  + fmtMoney(s.win)  + "</td>" +
+        '<td class="num" style="color:var(--red)">'    + fmtMoney(s.lost) + "</td>" +
+        '<td class="num">' + (s.winDeals||0) + " / " + (s.lostDeals||0) + " / " + (s.waitDeals||0) + "</td>" +
+        "<td>" + wrBadge(parseFloat(s.winRate) || 0) + "</td>" +
         "</tr>";
     }).join("") + "</tbody>";
 }
 
+// ─── Department Table ─────────────────────────────────────────────────────────
 function renderDeptTable(depts) {
   var t = document.getElementById("deptTable");
-  if (!depts || depts.length === 0) { t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No data</td></tr>'; return; }
-  var grand = depts.reduce(function(s, x) { return s + (x.win + x.waiting); }, 0);
+  if (!depts || depts.length === 0) {
+    t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No department data</td></tr>'; return;
+  }
+  var maxTotal = Math.max.apply(null, depts.map(function(d) { return d.total || 0; })) || 1;
   t.innerHTML = '<thead><tr>' +
-    '<th>Department</th><th class="right">Win ฿</th><th class="right">Waiting ฿</th><th class="right">Lost ฿</th><th class="right">Share</th>' +
+    '<th>Department</th><th class="right">Win Rev</th><th class="right">Total Rev</th>' +
+    '<th class="right">Deals W/L</th><th class="right">Win Rate</th>' +
     '</tr></thead><tbody>' +
-    depts.map(function(x) {
-      var pct = grand > 0 ? ((x.win + x.waiting) / grand * 100).toFixed(1) : "0.0";
+    depts.map(function(d) {
+      var pct = (d.win / maxTotal * 100).toFixed(0);
       return "<tr>" +
-        "<td>" + safeStr(x.dept) + "</td>" +
-        '<td class="num" style="color:var(--green)">' + fmtN(x.win)     + "</td>" +
-        '<td class="num" style="color:var(--amber)">' + fmtN(x.waiting) + "</td>" +
-        '<td class="num" style="color:var(--red)">'   + fmtN(x.lost)    + "</td>" +
-        '<td class="num">' + pct + "%" + "</td>" +
+        "<td>" +
+          '<div class="bar-cell">' +
+            '<span style="min-width:55px">' + safeStr(d.dept) + '</span>' +
+            '<div class="inline-bar"><div class="inline-bar-fill" style="width:' + pct + '%;background:var(--blue)"></div></div>' +
+          '</div>' +
+        "</td>" +
+        '<td class="num" style="color:var(--green)">' + fmtMoney(d.win)   + "</td>" +
+        '<td class="num">'                            + fmtMoney(d.total) + "</td>" +
+        '<td class="num">' + (d.winDeals||0) + " / " + (d.lostDeals||0) + "</td>" +
+        "<td>" + wrBadge(parseFloat(d.winRate) || 0) + "</td>" +
         "</tr>";
     }).join("") + "</tbody>";
 }
 
+// ─── Pipeline Table ───────────────────────────────────────────────────────────
 function renderPipelineTable(rows) {
   var t   = document.getElementById("pipelineTable");
   var cnt = document.getElementById("pipelineCount");
   if (!rows || rows.length === 0) {
     t.innerHTML = '<tr><td style="padding:20px;color:var(--muted)">No waiting deals</td></tr>';
-    cnt.textContent = "";
-    return;
+    cnt.textContent = ""; return;
   }
   cnt.textContent = rows.length + " deals";
-  // Use whatever columns exist — prefer known names but fall back gracefully
-  var sample = rows[0] || {};
-  var keys   = Object.keys(sample);
-  // Try to find common fields
+
+  var keys = Object.keys(rows[0] || {});
   function findKey(candidates) {
     for (var i = 0; i < candidates.length; i++) {
       for (var j = 0; j < keys.length; j++) {
@@ -320,39 +404,43 @@ function renderPipelineTable(rows) {
   }
   var clientKey = findKey(["Client Name","Client","Customer","Company","Account"]);
   var saleKey   = findKey(["Salesperson","Sale","Rep","Agent","Employee"]);
-  var valueKey  = findKey(["Value (THB)","Value","Amount","Revenue","Deal Value","Pipeline (THB)","Win Revenue (THB)"]);
+  var valueKey  = findKey(["Value (THB)","Value","Amount","Revenue","Deal Value","Pipeline (THB)"]);
   var deptKey   = findKey(["Dept","Dep Responsibility","Department","Division","Team"]);
-  var taskKey   = findKey(["Task Title","Title","Deal Name","Project","Description","Category"]);
-  var dateKey   = findKey(["Action Date","Date","Month","Updated","Status update Date"]);
+  var catKey    = findKey(["Category","Cat","Type","Task Title","Title"]);
+  var monthKey  = findKey(["Month","Date","Action Date","Period"]);
 
+  // Build display cols
   var cols = [];
-  if (clientKey) cols.push({ key: clientKey, label: "Client",     type: "str" });
-  if (saleKey)   cols.push({ key: saleKey,   label: "Sale",       type: "str" });
-  if (taskKey)   cols.push({ key: taskKey,   label: "Task",       type: "str" });
-  if (valueKey)  cols.push({ key: valueKey,  label: "Value (฿)",  type: "num" });
-  if (deptKey)   cols.push({ key: deptKey,   label: "Dept",       type: "str" });
-  if (dateKey)   cols.push({ key: dateKey,   label: "Date",       type: "date" });
-  // If no known columns found, show first 5 raw keys
-  if (cols.length === 0) {
-    cols = keys.slice(0, 5).map(function(k) { return { key: k, label: k, type: "str" }; });
-  }
+  if (clientKey) cols.push({ key: clientKey, label: "Client",    type: "str" });
+  if (saleKey)   cols.push({ key: saleKey,   label: "Sale",      type: "str" });
+  if (valueKey)  cols.push({ key: valueKey,  label: "Value (฿)", type: "num" });
+  if (deptKey)   cols.push({ key: deptKey,   label: "Dept",      type: "str" });
+  if (catKey)    cols.push({ key: catKey,    label: "Category",  type: "str" });
+  if (monthKey)  cols.push({ key: monthKey,  label: "Month",     type: "str" });
+  if (cols.length === 0) cols = keys.slice(0, 5).map(function(k) { return { key: k, label: k, type: "str" }; });
 
   t.innerHTML = '<thead><tr>' +
-    cols.map(function(c) { return "<th" + (c.type === "num" ? ' class="right"' : "") + ">" + c.label + "</th>"; }).join("") +
+    cols.map(function(c) {
+      return "<th" + (c.type === "num" ? ' class="right"' : "") + ">" + c.label + "</th>";
+    }).join("") +
     '</tr></thead><tbody>' +
-    rows.map(function(r) {
+    rows.map(function(r, idx) {
       return "<tr>" + cols.map(function(c) {
         var v = r[c.key];
-        if (c.type === "num") return '<td class="num">฿' + ((parseFloat(String(v || "0").replace(/[,฿\s]/g, "")) || 0).toLocaleString()) + "</td>";
-        if (c.type === "date") return "<td>" + (v instanceof Date ? v.toLocaleDateString("th-TH") : safeStr(v)) + "</td>";
+        if (c.type === "num") {
+          var n = parseFloat(String(v || "0").replace(/[,฿\s]/g, "")) || 0;
+          return '<td class="num">฿' + n.toLocaleString() + "</td>";
+        }
         return "<td>" + safeStr(v) + "</td>";
       }).join("") + "</tr>";
     }).join("") + "</tbody>";
 }
 
+// ─── Main render ─────────────────────────────────────────────────────────────
 function renderDashboard(data) {
   document.getElementById("loadingState").style.display = "none";
   document.getElementById("dashContent").style.display  = "block";
+
   if (data.fetchedAt) {
     document.getElementById("fetchedAt").textContent =
       "Updated: " + new Date(data.fetchedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
@@ -362,17 +450,19 @@ function renderDashboard(data) {
     b.textContent = "Warning: " + data.error;
     b.style.display = "block";
   }
+
   var s = data.ssot || {};
   renderDebug(s.debug);
   renderKPIs(s);
+  renderMonthlyChart(s.monthly || []);
   renderSaleChart(s.salespersons || []);
   renderClientChart(s.topClients || []);
   renderSaleTable(s.salespersons || []);
   renderDeptTable(s.departments || []);
   renderPipelineTable(s.pipelineRows || []);
+
   document.getElementById("pipelineCount").textContent =
-    (s.pipelineCount || (s.pipelineRows || []).length) + " deals · ฿" +
-    ((s.pipelineValue || s.waitingValue || 0) / 1e6).toFixed(2) + "M";
+    (s.pipelineCount || 0) + " deals · " + fmtMoney(s.pipelineValue || s.waitingValue || 0);
 }
 
 function showError(err) {

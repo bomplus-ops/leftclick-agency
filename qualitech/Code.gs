@@ -202,16 +202,22 @@ function normaliseClient(rows) {
 
 // ── Normalise Department Performance tab ─────────────────────────────────────
 // Actual columns: Department | Total Deals | Win | Lost | Win Rate % | Win Revenue (THB) | Total Revenue (THB)
+// Note: "Win" and "Lost" in this tab are COUNTS, not revenue values.
+// "Lost Revenue" column does not exist here — use Total Revenue instead.
 function normaliseDept(rows) {
   return rows.map(function(r) {
-    var win   = toNum(pick(r, ["Win Revenue (THB)","Win Revenue","Won Revenue","Win"]));
-    var total = toNum(pick(r, ["Total Revenue (THB)","Total Revenue","Grand Total","Total"])) || win;
+    var win   = toNum(pick(r, ["Win Revenue (THB)","Win Revenue","Won Revenue"]));
+    var total = toNum(pick(r, ["Total Revenue (THB)","Total Revenue","Grand Total"]));
+    var wrRaw = toNum(String(pick(r, ["Win Rate %","Win Rate","Win%"]) || "0").replace("%",""));
     return {
       dept:    pick(r, ["Department","Dep Responsibility","Dept","Division","Team","Unit"]),
       win:     win,
-      lost:    toNum(pick(r, ["Lost Revenue (THB)","Lost Revenue","Lost"])),
-      waiting: toNum(pick(r, ["Pipeline (THB)","Pipeline","Waiting"])),
-      total:   total
+      other:   total > win ? total - win : 0,  // non-win portion of total revenue
+      total:   total || win,
+      winRate: wrRaw > 1 ? wrRaw : wrRaw * 100,
+      winDeals:  toNum(pick(r, ["Win","Win Deals"])),
+      lostDeals: toNum(pick(r, ["Lost","Lost Deals"])),
+      total_deals: toNum(pick(r, ["Total Deals","Total"]))
     };
   }).filter(function(d){
     return d.dept && d.dept !== "—" && String(d.dept).toUpperCase() !== "TOTAL";
