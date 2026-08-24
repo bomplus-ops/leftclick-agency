@@ -265,7 +265,7 @@ function renderSaleTable(persons) {
     '<th class="right">Lost ฿</th><th class="right">Deals W/L</th><th class="right">Win Rate</th>' +
     '</tr></thead><tbody>' +
     persons.map(function(s) {
-      var wr = parseFloat(s.winRate) || 0;
+      var wr = parseFloat(s.winRate) || 0;  // already 0-100
       return "<tr>" +
         "<td>" + safeStr(s.sale) + "</td>" +
         '<td class="num" style="color:var(--green)">'  + fmtN(s.win)     + "</td>" +
@@ -319,11 +319,11 @@ function renderPipelineTable(rows) {
     return null;
   }
   var clientKey = findKey(["Client Name","Client","Customer","Company","Account"]);
-  var saleKey   = findKey(["Sale","Salesperson","Rep","Agent","Name","Employee"]);
-  var valueKey  = findKey(["Value","Amount","Revenue","Deal Value","Pipeline (THB)","Win Revenue (THB)"]);
-  var deptKey   = findKey(["Dep Responsibility","Department","Dept","Division","Team"]);
-  var taskKey   = findKey(["Task Title","Title","Deal Name","Project","Description"]);
-  var dateKey   = findKey(["Action Date","Date","Updated","Status update Date"]);
+  var saleKey   = findKey(["Salesperson","Sale","Rep","Agent","Employee"]);
+  var valueKey  = findKey(["Value (THB)","Value","Amount","Revenue","Deal Value","Pipeline (THB)","Win Revenue (THB)"]);
+  var deptKey   = findKey(["Dept","Dep Responsibility","Department","Division","Team"]);
+  var taskKey   = findKey(["Task Title","Title","Deal Name","Project","Description","Category"]);
+  var dateKey   = findKey(["Action Date","Date","Month","Updated","Status update Date"]);
 
   var cols = [];
   if (clientKey) cols.push({ key: clientKey, label: "Client",     type: "str" });
