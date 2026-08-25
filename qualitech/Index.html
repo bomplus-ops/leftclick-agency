@@ -491,6 +491,13 @@ function gv(row, key) {
   var v = row[key];
   return (v === null || v === undefined) ? "" : v;
 }
+// Take the primary (first) value from a multi-value string like "PIS-A, NDT"
+// so "PIS-A, NDT" and "NDT, PIS-A" don't count as separate departments.
+function primary(v) {
+  var s = String(v || "").trim();
+  if (!s) return "";
+  return s.split(/[,;/]/)[0].trim();
+}
 function tn(v) {
   if (v === null || v === undefined || v === "" || v === "—") return 0;
   var n = parseFloat(String(v).replace(/[,฿%\s]/g, ""));
@@ -529,7 +536,7 @@ function aggregateFromRaw(rows) {
 
   var sMap = {};
   rows.forEach(function(r) {
-    var s = String(gv(r,K.sale)||"").trim();
+    var s = primary(gv(r,K.sale));
     if (!s||s==="—"||s.toUpperCase()==="TOTAL") return;
     if (!sMap[s]) sMap[s]={wi:0,li:0,wt:0,wv:0,lv:0};
     var st=normStatus(gv(r,K.status)), v=tn(gv(r,K.value));
@@ -544,7 +551,7 @@ function aggregateFromRaw(rows) {
 
   var dMap = {};
   rows.forEach(function(r) {
-    var d = String(gv(r,K.dept)||"").trim();
+    var d = primary(gv(r,K.dept));
     if (!d||d==="—"||d.toUpperCase()==="TOTAL") return;
     // Normalize legacy dept names
     if (d === "PISB") d = "PIS-B";
@@ -605,13 +612,13 @@ function initFilters(rawRows) {
   fTo.value = G_months[G_months.length-1];
 
   var sSeen={};
-  rawRows.forEach(function(r){var s=String(gv(r,G_rawK.sale)||"").trim(); if(s&&s!=="—"&&s.toUpperCase()!=="TOTAL") sSeen[s]=true;});
+  rawRows.forEach(function(r){var s=primary(gv(r,G_rawK.sale)); if(s&&s!=="—"&&s.toUpperCase()!=="TOTAL") sSeen[s]=true;});
   document.getElementById("fSale").innerHTML='<option value="__all__">All Salespersons</option>'+
     Object.keys(sSeen).sort().map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join("");
 
   var dSeen={};
   rawRows.forEach(function(r){
-    var d=String(gv(r,G_rawK.dept)||"").trim();
+    var d=primary(gv(r,G_rawK.dept));
     if (d === "PISB") d = "PIS-B";
     if (d === "PISA") d = "PIS-A";
     if(d&&d!=="—"&&d.toUpperCase()!=="TOTAL") dSeen[d]=true;
@@ -651,9 +658,9 @@ function filterAndRender() {
   var filtered=G_raw.filter(function(r){
     var mRaw=String(gv(r,G_rawK.month)||"").trim(), mIdx=myi(mRaw);
     if (mIdx>0){if(fromIdx>0&&mIdx<fromIdx)return false; if(toIdx>0&&mIdx>toIdx)return false;}
-    if (sale!=="__all__"&&String(gv(r,G_rawK.sale)||"").trim()!==sale) return false;
+    if (sale!=="__all__" && primary(gv(r,G_rawK.sale)) !== sale) return false;
     if (dept!=="__all__"){
-      var rd = String(gv(r,G_rawK.dept)||"").trim();
+      var rd = primary(gv(r,G_rawK.dept));
       if (rd === "PISB") rd = "PIS-B";
       if (rd === "PISA") rd = "PIS-A";
       if (rd !== dept) return false;
@@ -741,6 +748,10 @@ function renderSaleTable(persons) {
   var t=document.getElementById("saleTable");
   if (!persons||!persons.length){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No salesperson data</td></tr>';return;}
   var maxWin=Math.max.apply(null,persons.map(function(s){return s.win||0;}))||1;
+  // Totals for reconciliation
+  var tW=0,tL=0,tWin=0,tLost=0,tWD=0,tLD=0,tWaitD=0;
+  persons.forEach(function(s){tWin+=s.win||0; tLost+=s.lost||0; tWD+=s.winDeals||0; tLD+=s.lostDeals||0; tWaitD+=s.waitDeals||0;});
+  var totalWR = (tWD+tLD)>0 ? tWD/(tWD+tLD)*100 : 0;
   t.innerHTML='<thead><tr><th>Salesperson</th><th class="right">Win Rev</th><th class="right">Lost Rev</th><th class="right">Deals W/L/W8</th><th class="right">Win Rate</th></tr></thead><tbody>'+
     persons.map(function(s){
       var pct=(s.win/maxWin*100).toFixed(0);
@@ -750,13 +761,22 @@ function renderSaleTable(persons) {
         '<td class="num" style="color:var(--red)">'+fmtMoney(s.lost)+"</td>"+
         '<td class="num">'+(s.winDeals||0)+" / "+(s.lostDeals||0)+" / "+(s.waitDeals||0)+"</td>"+
         '<td class="right">'+wrBadge(parseFloat(s.winRate)||0)+"</td></tr>";
-    }).join("")+"</tbody>";
+    }).join("")+
+    '<tr style="background:var(--surface2);font-weight:700"><td style="color:var(--text)">TOTAL</td>'+
+    '<td class="num" style="color:var(--green-dark)">'+fmtMoney(tWin)+"</td>"+
+    '<td class="num" style="color:var(--red)">'+fmtMoney(tLost)+"</td>"+
+    '<td class="num">'+tWD+" / "+tLD+" / "+tWaitD+"</td>"+
+    '<td class="right">'+wrBadge(totalWR)+"</td></tr>"+
+    "</tbody>";
 }
 
 function renderDeptTable(depts) {
   var t=document.getElementById("deptTable");
   if (!depts||!depts.length){t.innerHTML='<tr><td style="padding:20px;color:var(--muted)">No department data</td></tr>';return;}
   var maxTotal=Math.max.apply(null,depts.map(function(d){return d.total||0;}))||1;
+  var tWin=0,tTotal=0,tWD=0,tLD=0;
+  depts.forEach(function(d){tWin+=d.win||0; tTotal+=d.total||0; tWD+=d.winDeals||0; tLD+=d.lostDeals||0;});
+  var totalWR = (tWD+tLD)>0 ? tWD/(tWD+tLD)*100 : 0;
   t.innerHTML='<thead><tr><th>Department</th><th class="right">Win Rev</th><th class="right">Total Rev</th><th class="right">Deals W/L</th><th class="right">Win Rate</th></tr></thead><tbody>'+
     depts.map(function(d){
       var pct=(d.win/maxTotal*100).toFixed(0);
@@ -766,7 +786,13 @@ function renderDeptTable(depts) {
         '<td class="num">'+fmtMoney(d.total)+"</td>"+
         '<td class="num">'+(d.winDeals||0)+" / "+(d.lostDeals||0)+"</td>"+
         '<td class="right">'+wrBadge(parseFloat(d.winRate)||0)+"</td></tr>";
-    }).join("")+"</tbody>";
+    }).join("")+
+    '<tr style="background:var(--surface2);font-weight:700"><td style="color:var(--text)">TOTAL</td>'+
+    '<td class="num" style="color:var(--green-dark)">'+fmtMoney(tWin)+"</td>"+
+    '<td class="num">'+fmtMoney(tTotal)+"</td>"+
+    '<td class="num">'+tWD+" / "+tLD+"</td>"+
+    '<td class="right">'+wrBadge(totalWR)+"</td></tr>"+
+    "</tbody>";
 }
 
 function renderPipelineTable(rows) {
