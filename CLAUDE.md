@@ -1,8 +1,33 @@
 # LeftClick Agency Website
 
+## Working principles
+
+These come before anything else in this file.
+
+**Quality over speed.** A slower answer that is traceable beats a fast one that is plausible. No
+deadline here is worth a fabricated number, an unverified claim, or a shortcut through a check.
+
+**Never invent a number or a fact.** Where a figure comes from a source, cite the source. Where it
+is judgment, say so. Where it depends on an answer that has not arrived, report a range and name
+what would close it — do not collapse it to a point estimate to make a table look finished.
+
+**Read the source document before pricing, planning, or claiming anything from it.** Summaries and
+second-hand figures are where errors enter. If an attachment, spreadsheet or TOR is referenced,
+open it.
+
+**Say what was not done.** If part of a task is blocked, incomplete, or skipped, state it plainly
+alongside what was delivered.
+
 ## Project Overview
 
 Multi-page marketing website for LeftClick, an AI automation agency. Static HTML files with embedded CSS and JavaScript—no build step required.
+
+This repository also carries `agent-skills/` — a 26-skill Claude Code Skills pack scoped to
+LeftClick's actual business, organised in five divisions (Automation Systems Engineering & QA;
+Brand Authority & Inbound Content; Outbound Sales & Client Acquisition; RevOps & Background
+Workers; Operations, Memory & QA). Each skill is a folder with a `SKILL.md`; see
+`agent-skills/README.md` for the index. The skills pack is independent of the website — changing
+one never requires changing the other.
 
 ## Related Sites
 
@@ -28,8 +53,19 @@ Multi-page marketing website for LeftClick, an AI automation agency. Static HTML
 ├── netlify.toml        # Netlify configuration
 ├── .gitignore          # Git ignore rules
 ├── CLAUDE.md           # This file
+├── agent-skills/       # 26-skill Claude Code Skills pack (5 divisions) — see its README.md
 └── .netlify/           # Netlify local state (gitignored)
 ```
+
+## Related repository
+
+Qualitech PLC's tender pipeline lives in a separate repo,
+`bomplus-ops/qualitech-opportunity-intelligence` (skills `qualitech-personal-opportunity-intelligence`
+for A0 opportunity screening and `qualitech-tender-control-tower` for the governed A1–A7 pipeline).
+It has its own `CLAUDE.md` carrying the evidence-label discipline (`CONFIRMED` / `ASSUMPTION` /
+`TBC`), the rule that sell rates are never cost inputs, and the bottom-up pressure-vessel
+certification cost model. Nothing in this repo depends on it; the working principles above are
+shared deliberately.
 
 ## Git Workflow
 
