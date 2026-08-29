@@ -1,6 +1,6 @@
 # LinkedIn Content Calendar
 
-Last updated: 2026-08-27 (bot)
+Last updated: 2026-08-29 (bot)
 
 | Date | Theme | Hook Direction | Status |
 |------|-------|----------------|--------|
@@ -20,7 +20,8 @@ Last updated: 2026-08-27 (bot)
 | 2026-08-17 | Workflow Automation | Manual ops audit → 4 targeted automations → 14h/week recovered | ✗ MISSED — window closed 2026-08-24 (7 days past due, no URL confirmed) |
 | 2026-08-21 | Cold Outreach / Lead Gen | AI cold email system: 1.2% → 4.7% reply rate, 4× meetings (client result) | ✗ MISSED — window closed 2026-08-24 (3 days past Thu publish date, no URL confirmed). Draft reused for Aug 28. |
 | 2026-08-25 | Hiring Automation / AI Screening | 200 applicants screened in 40 min — AI shortlist → human final call | ✗ MISSED — window closed Tue Aug 26 (15th consecutive miss since Jun 10) |
-| **2026-08-28** | **Cold Outreach / Lead Gen** | **1.2% → 4.7% reply rate, 4× meetings — AI personalization at scale** | **⏳ DRAFT READY — POST THU AUG 28 ~9am** |
+| **2026-08-28** | **Cold Outreach / Lead Gen** | **1.2% → 4.7% reply rate, 4× meetings — AI personalization at scale** | **🔴 LAST WINDOW SAT-SUN — draft at `2026-08-28-post.md`, window closes Aug 31** |
+| **2026-09-01** | **Reporting Automation** | **14h/week saved — Make + OpenAI + Slack automated Friday reports** | **✍️ DRAFT READY — POST MON SEP 1 ~9am, draft at `2026-09-01-post.md`** |
 
 ## Cadence
 - Posts go out on Mondays and Thursdays, targeting ~9am local.
