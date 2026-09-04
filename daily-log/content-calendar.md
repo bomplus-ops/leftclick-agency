@@ -1,6 +1,6 @@
 # LinkedIn Content Calendar
 
-Last updated: 2026-08-29 (bot)
+Last updated: 2026-09-04 (bot)
 
 | Date | Theme | Hook Direction | Status |
 |------|-------|----------------|--------|
@@ -20,8 +20,10 @@ Last updated: 2026-08-29 (bot)
 | 2026-08-17 | Workflow Automation | Manual ops audit → 4 targeted automations → 14h/week recovered | ✗ MISSED — window closed 2026-08-24 (7 days past due, no URL confirmed) |
 | 2026-08-21 | Cold Outreach / Lead Gen | AI cold email system: 1.2% → 4.7% reply rate, 4× meetings (client result) | ✗ MISSED — window closed 2026-08-24 (3 days past Thu publish date, no URL confirmed). Draft reused for Aug 28. |
 | 2026-08-25 | Hiring Automation / AI Screening | 200 applicants screened in 40 min — AI shortlist → human final call | ✗ MISSED — window closed Tue Aug 26 (15th consecutive miss since Jun 10) |
-| **2026-08-28** | **Cold Outreach / Lead Gen** | **1.2% → 4.7% reply rate, 4× meetings — AI personalization at scale** | **🔴 LAST WINDOW SAT-SUN — draft at `2026-08-28-post.md`, window closes Aug 31** |
-| **2026-09-01** | **Reporting Automation** | **14h/week saved — Make + OpenAI + Slack automated Friday reports** | **✍️ DRAFT READY — POST MON SEP 1 ~9am, draft at `2026-09-01-post.md`** |
+| 2026-08-28 | Cold Outreach / Lead Gen | 1.2% → 4.7% reply rate, 4× meetings — AI personalization at scale | ✗ MISSED — window closed Aug 31 (16th consecutive miss since Jun 10) |
+| **2026-09-01** | **Reporting Automation** | **14h/week saved — Make + OpenAI + Slack automated Friday reports** | **❓ UNCONFIRMED — no URL, no checklist tick. 3 days past publish date. Confirm or mark MISSED (17th).** |
+| **2026-09-04** | **Hiring Automation / AI Screening** | **200 applicants screened in 40 min — Make + GPT-4o scoring pipeline** | **🟡 DRAFT READY — post today Thu Sep 4 ~9am. Draft at `2026-09-04-post.md`. Last window Sun Sep 7.** |
+| 2026-09-08 | Cold Outreach / Lead Gen | AI personalization at scale — reply rate uplift, pipeline volume | ⬜ Draft Sat Sep 6 |
 
 ## Cadence
 - Posts go out on Mondays and Thursdays, targeting ~9am local.
